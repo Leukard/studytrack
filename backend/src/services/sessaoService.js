@@ -1,11 +1,10 @@
 const { clienteComToken } = require('../config/supabase');
 
-async function criar(token, userId, nome, metaHorasSemana) {
+async function criar(token, temaId, duracaoMinutos, anotacao) {
   const supabase = clienteComToken(token);
-
   const { data, error } = await supabase
-    .from('temas')
-    .insert([{ user_id: userId, nome, meta_horas_semana: metaHorasSemana }])
+    .from('sessoes')
+    .insert([{ tema_id: temaId, duracao_minutos: duracaoMinutos, anotacao }])
     .select()
     .single();
 
@@ -13,36 +12,23 @@ async function criar(token, userId, nome, metaHorasSemana) {
   return data;
 }
 
-
-
-async function listar(token, userId) {
+async function listarPorTema(token, temaId) {
   const supabase = clienteComToken(token);
   const { data, error } = await supabase
-    .from('temas')
+    .from('sessoes')
     .select('*')
-    .order('created_at', { ascending: false });
+    .eq('tema_id', temaId)
+    .order('data', { ascending: false });
 
   if (error) throw new Error(error.message);
   return data;
 }
 
-async function buscarPorId(token, id) {
+async function atualizar(token, id, duracaoMinutos, anotacao) {
   const supabase = clienteComToken(token);
   const { data, error } = await supabase
-    .from('temas')
-    .select('*')
-    .eq('id', id)
-    .single();
-
-  if (error) throw new Error(error.message);
-  return data;
-}
-
-async function atualizar(token, id, nome, metaHorasSemana) {
-  const supabase = clienteComToken(token);
-  const { data, error } = await supabase
-    .from('temas')
-    .update({ nome, meta_horas_semana: metaHorasSemana })
+    .from('sessoes')
+    .update({ duracao_minutos: duracaoMinutos, anotacao })
     .eq('id', id)
     .select()
     .single();
@@ -54,11 +40,11 @@ async function atualizar(token, id, nome, metaHorasSemana) {
 async function deletar(token, id) {
   const supabase = clienteComToken(token);
   const { error } = await supabase
-    .from('temas')
+    .from('sessoes')
     .delete()
     .eq('id', id);
 
   if (error) throw new Error(error.message);
 }
 
-module.exports = { criar, listar, buscarPorId, atualizar, deletar };
+module.exports = { criar, listarPorTema, atualizar, deletar };
