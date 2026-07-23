@@ -10,6 +10,7 @@ async function criar(req, res) {
   }
 }
 
+// Lista as sessões de um tema específico (id vem da URL, ver sessaoRoutes.js)
 async function listarPorTema(req, res) {
   try {
     const sessoes = await sessaoService.listarPorTema(req.token, req.params.temaId);
@@ -29,6 +30,7 @@ async function atualizar(req, res) {
   }
 }
 
+// 204 (sem conteúdo) é a convenção padrão para delete bem-sucedido
 async function deletar(req, res) {
   try {
     await sessaoService.deletar(req.token, req.params.id);

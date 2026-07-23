@@ -3,6 +3,7 @@ const router = express.Router();
 const temaController = require('../controllers/temaController');
 const verificarToken = require('../middlewares/auth');
 
+// Todas as rotas de temas exigem autenticação
 router.post('/', verificarToken, temaController.criar);
 router.get('/', verificarToken, temaController.listar);
 router.get('/:id', verificarToken, temaController.buscarPorId);

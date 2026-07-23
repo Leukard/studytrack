@@ -1,3 +1,5 @@
+// API_URL vem de api.js, carregado antes deste arquivo no HTML
+
 const btnLogin = document.getElementById('btn-login');
 const btnCadastro = document.getElementById('btn-cadastro');
 const btnEnviar = document.getElementById('btn-enviar');
@@ -6,6 +8,7 @@ const mensagemErro = document.getElementById('mensagem-erro');
 
 let modo = 'login';
 
+// Alterna visualmente entre os modos "login" e "cadastro" no mesmo formulário
 function alternarModo(novoModo) {
   modo = novoModo;
   const ehLogin = modo === 'login';
@@ -47,6 +50,7 @@ form.addEventListener('submit', async (e) => {
 
     const dados = await resposta.json();
 
+    // fetch não lança erro sozinho em respostas 4xx/5xx — precisamos checar resposta.ok manualmente
     if (!resposta.ok) {
       throw new Error(dados.erro || 'Algo deu errado');
     }
@@ -55,6 +59,7 @@ form.addEventListener('submit', async (e) => {
       localStorage.setItem('access_token', dados.session.access_token);
       window.location.href = 'dashboard.html';
     } else {
+      // Cadastro não gera sessão imediata — Supabase exige confirmação de email primeiro
       mensagemErro.textContent = 'Conta criada! Verifique seu email para confirmar antes de entrar.';
       mensagemErro.classList.remove('text-red-500');
       mensagemErro.classList.add('text-emerald-500');
@@ -65,6 +70,7 @@ form.addEventListener('submit', async (e) => {
     mensagemErro.textContent = erro.message;
     mensagemErro.classList.remove('hidden');
   } finally {
+    // Roda em qualquer caso (sucesso ou erro), evitando o botão travado em "Aguarde..."
     btnEnviar.disabled = false;
     btnEnviar.textContent = modo === 'login' ? 'Entrar' : 'Criar conta';
   }

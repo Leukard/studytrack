@@ -1,5 +1,6 @@
 const temaService = require('../services/temaService');
 
+// req.usuario e req.token só existem porque o middleware verificarToken já rodou antes desta função
 async function criar(req, res) {
   try {
     const { nome, metaHorasSemana } = req.body;
@@ -41,6 +42,7 @@ async function atualizar(req, res) {
   }
 }
 
+// 204 (sem conteúdo) é a convenção padrão para delete bem-sucedido
 async function deletar(req, res) {
   try {
     await temaService.deletar(req.token, req.params.id);

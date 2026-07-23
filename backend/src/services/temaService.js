@@ -1,8 +1,10 @@
 const { clienteComToken } = require('../config/supabase');
 
+// Cria um tema associado ao usuário autenticado.
+// user_id é passado explicitamente (não confiamos em dado vindo do frontend para isso);
+// o RLS também garante, no banco, que só é possível inserir com o próprio user_id.
 async function criar(token, userId, nome, metaHorasSemana) {
   const supabase = clienteComToken(token);
-
   const { data, error } = await supabase
     .from('temas')
     .insert([{ user_id: userId, nome, meta_horas_semana: metaHorasSemana }])
@@ -13,8 +15,9 @@ async function criar(token, userId, nome, metaHorasSemana) {
   return data;
 }
 
-
-
+// Lista os temas do usuário autenticado.
+// Não filtramos por user_id manualmente aqui — o RLS já garante que só voltam
+// os temas do dono do token usado no cliente.
 async function listar(token, userId) {
   const supabase = clienteComToken(token);
   const { data, error } = await supabase

@@ -1,5 +1,8 @@
 const { clienteComToken } = require('../config/supabase');
 
+// Cria uma sessão vinculada a um tema.
+// Não validamos aqui se o tema_id pertence ao usuário — o RLS da tabela `sessoes`
+// já rejeita a inserção se o tema não for do dono do token (ver política no Supabase).
 async function criar(token, temaId, duracaoMinutos, anotacao) {
   const supabase = clienteComToken(token);
   const { data, error } = await supabase

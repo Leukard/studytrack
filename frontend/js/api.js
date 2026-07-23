@@ -4,12 +4,16 @@ function getToken() {
   return localStorage.getItem('access_token');
 }
 
+// Protege páginas que exigem login — redireciona para a tela de login se não houver token
 function exigirLogin() {
   if (!getToken()) {
     window.location.href = 'index.html';
   }
 }
 
+// Wrapper central para todas as chamadas autenticadas à API.
+// Cuida de: anexar o token, tratar token expirado/inválido (401), tratar
+// respostas sem corpo (204, ex: delete) e lançar erro de forma consistente.
 async function requisicaoAutenticada(caminho, opcoes = {}) {
   const resposta = await fetch(`${API_URL}${caminho}`, {
     ...opcoes,
@@ -20,6 +24,7 @@ async function requisicaoAutenticada(caminho, opcoes = {}) {
     },
   });
 
+  // Token inválido/expirado — desloga e manda de volta pro login
   if (resposta.status === 401) {
     localStorage.removeItem('access_token');
     window.location.href = 'index.html';
@@ -34,6 +39,8 @@ async function requisicaoAutenticada(caminho, opcoes = {}) {
   return dados;
 }
 
+// Interface pública usada pelas páginas — esconde os detalhes de fetch/headers,
+// deixando o código de cada página focado no "o quê", não no "como"
 const api = {
   listarTemas: () => requisicaoAutenticada('/temas'),
   criarTema: (nome, metaHorasSemana) =>

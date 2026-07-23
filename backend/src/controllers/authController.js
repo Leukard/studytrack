@@ -1,5 +1,6 @@
 const authService = require('../services/authService');
 
+// Recebe email/senha e delega ao service; 400 se falhar (ex: email já cadastrado)
 async function cadastrar(req, res) {
   try {
     const { email, senha } = req.body;
@@ -10,6 +11,7 @@ async function cadastrar(req, res) {
   }
 }
 
+// 401 se falhar (credenciais inválidas), diferente do cadastro
 async function login(req, res) {
   try {
     const { email, senha } = req.body;
