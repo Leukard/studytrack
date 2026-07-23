@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StudyTrack — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            brand: { 500: '#6366f1', 600: '#4f46e5' },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300 min-h-screen">
+
+  <header class="border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between">
+    <h1 class="text-xl font-bold text-brand-600 dark:text-brand-500">StudyTrack</h1>
+    <div class="flex items-center gap-3">
+      <button id="toggle-tema" class="p-2 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
+        <span id="icone-tema">🌙</span>
+      </button>
+      <button id="btn-logout" class="text-sm text-slate-500 dark:text-slate-400 hover:text-red-500 transition-colors">
+        Sair
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-8">
+
+    <p id="saudacao" class="text-2xl font-semibold mb-6"></p>
+
+    <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm">
+        <p class="text-sm text-slate-500 dark:text-slate-400">Horas essa semana</p>
+        <p id="stat-horas" class="text-3xl font-bold mt-1">0h</p>
+      </div>
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm">
+        <p class="text-sm text-slate-500 dark:text-slate-400">Sequência atual</p>
+        <p id="stat-sequencia" class="text-3xl font-bold mt-1">🔥 0 dias</p>
+      </div>
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm">
+        <p class="text-sm text-slate-500 dark:text-slate-400">Meta geral atingida</p>
+        <p id="stat-meta" class="text-3xl font-bold mt-1">0%</p>
+      </div>
+    </section>
+
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold">Seus temas</h2>
+      <div class="flex gap-2">
+        <button id="btn-iniciar-sessao" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-all active:scale-95">
+          ▶ Iniciar sessão
+        </button>
+        <button id="btn-novo-tema" class="px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium transition-all active:scale-95">
+          + Novo tema
+        </button>
+      </div>
+    </div>
+
+    <div id="lista-temas" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- temas entram aqui via JS -->
+    </div>
+
+    <div id="estado-vazio" class="hidden text-center py-16">
+      <p class="text-4xl mb-3">📚</p>
+      <p class="text-lg font-medium mb-1">Você ainda não tem nenhum tema</p>
+      <p class="text-slate-500 dark:text-slate-400 mb-4">Cadastre o primeiro tema que quer estudar e comece a acompanhar sua evolução</p>
+      <button id="btn-vazio-novo-tema" class="px-5 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-medium transition-all">
+        + Criar meu primeiro tema
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Modal: Novo Tema -->
+  <div id="modal-tema" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4 z-50">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-[fadeIn_0.2s_ease-out]">
+      <h3 class="text-lg font-semibold mb-4">Novo tema de estudo</h3>
+      <form id="form-tema" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Nome</label>
+          <input type="text" id="input-nome-tema" required placeholder="Ex: JavaScript avançado"
+            class="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Meta de horas por semana</label>
+          <input type="number" id="input-meta-tema" min="0" step="0.5" placeholder="Ex: 5"
+            class="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all" />
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" id="btn-cancelar-tema" class="flex-1 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+            Cancelar
+          </button>
+          <button type="submit" class="flex-1 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-medium transition-all active:scale-95">
+            Criar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Registrar Sessão -->
+  <div id="modal-sessao" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4 z-50">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-[fadeIn_0.2s_ease-out]">
+      <h3 class="text-lg font-semibold mb-1">Registrar sessão</h3>
+      <p id="sessao-tema-nome" class="text-sm text-slate-500 dark:text-slate-400 mb-4"></p>
+      <form id="form-sessao" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Duração (minutos)</label>
+          <input type="number" id="input-duracao-sessao" required min="1" placeholder="Ex: 45"
+            class="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">O que você estudou?</label>
+          <textarea id="input-anotacao-sessao" rows="3" placeholder="Ex: revisei closures e escopo"
+            class="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all resize-none"></textarea>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" id="btn-cancelar-sessao" class="flex-1 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+            Cancelar
+          </button>
+          <button type="submit" class="flex-1 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium transition-all active:scale-95">
+            Salvar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+
+  <script src="js/tema.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
