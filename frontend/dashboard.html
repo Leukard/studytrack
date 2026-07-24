@@ -87,7 +87,7 @@
   <!-- Modal: Novo Tema -->
   <div id="modal-tema" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4 z-50">
     <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-[fadeIn_0.2s_ease-out]">
-      <h3 class="text-lg font-semibold mb-4">Novo tema de estudo</h3>
+      <h3 id="titulo-modal-tema" class="text-lg font-semibold mb-4">Novo tema de estudo</h3>
       <form id="form-tema" class="space-y-4">
         <div>
           <label class="block text-sm font-medium mb-1">Nome</label>
@@ -103,7 +103,7 @@
           <button type="button" id="btn-cancelar-tema" class="flex-1 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
             Cancelar
           </button>
-          <button type="submit" class="flex-1 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-medium transition-all active:scale-95">
+          <button type="submit" id="btn-salvar-tema" class="flex-1 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-medium transition-all active:scale-95">
             Criar
           </button>
         </div>
@@ -136,6 +136,19 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal: Lista de Sessões de um Tema -->
+  <div id="modal-lista-sessoes" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4 z-50">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[80vh] flex flex-col animate-[fadeIn_0.2s_ease-out]">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="titulo-lista-sessoes" class="text-lg font-semibold"></h3>
+        <button id="btn-fechar-lista-sessoes" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">✕</button>
+      </div>
+      <div id="lista-sessoes-conteudo" class="overflow-y-auto space-y-2 flex-1">
+        <!-- sessões entram aqui via JS -->
+      </div>
     </div>
   </div>
 

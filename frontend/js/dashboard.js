@@ -9,6 +9,9 @@ const statMeta = document.getElementById('stat-meta');
 const btnLogout = document.getElementById('btn-logout');
 const btnNovoTema = document.getElementById('btn-novo-tema');
 const btnVazioNovoTema = document.getElementById('btn-vazio-novo-tema');
+const modalListaSessoes = document.getElementById('modal-lista-sessoes');
+const tituloListaSessoes = document.getElementById('titulo-lista-sessoes');
+const listaSessoesConteudo = document.getElementById('lista-sessoes-conteudo');
 
 // Retorna a data (00:00) da segunda-feira da semana atual — semana considerada
 // começa na segunda (padrão brasileiro), não no domingo
@@ -64,18 +67,26 @@ function criarCardTema(tema, sessoesDoTema) {
   const horasEssaSemana = minutosDesde(sessoesDoTema, obterInicioSemana()) / 60;
   const progresso = meta > 0 ? Math.min(100, (horasEssaSemana / meta) * 100) : 0;
 
-  card.innerHTML = `
+ card.innerHTML = `
     <div class="flex items-start justify-between mb-3">
       <h3 class="font-semibold">${tema.nome}</h3>
-      <button data-id="${tema.id}" class="btn-deletar-tema text-slate-400 hover:text-red-500 transition-colors text-sm">✕</button>
+      <div class="flex gap-2">
+        <button data-id="${tema.id}" data-nome="${tema.nome}" data-meta="${meta}" class="btn-editar-tema text-slate-400 hover:text-brand-500 transition-colors text-sm">✎</button>
+        <button data-id="${tema.id}" class="btn-deletar-tema text-slate-400 hover:text-red-500 transition-colors text-sm">✕</button>
+      </div>
     </div>
     <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">${horasEssaSemana.toFixed(1)}h de ${meta}h/semana</p>
     <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 mb-3">
       <div class="bg-brand-500 h-2 rounded-full transition-all duration-500" style="width: ${progresso}%"></div>
     </div>
-    <button data-id="${tema.id}" data-nome="${tema.nome}" class="btn-registrar-sessao text-sm text-brand-600 dark:text-brand-500 font-medium hover:underline">
-      + Registrar sessão
-    </button>
+    <div class="flex gap-3 mt-1">
+      <button data-id="${tema.id}" data-nome="${tema.nome}" class="btn-registrar-sessao text-sm text-brand-600 dark:text-brand-500 font-medium hover:underline">
+        + Registrar sessão
+      </button>
+      <button data-id="${tema.id}" data-nome="${tema.nome}" class="btn-ver-sessoes text-sm text-slate-500 dark:text-slate-400 font-medium hover:underline">
+        Ver sessões
+      </button>
+    </div>
   `;
 
   return card;
@@ -129,8 +140,6 @@ async function carregarTemas() {
 
     atualizarStats(temas, todasSessoes);
 
-    // Os listeners abaixo precisam ser religados a cada carregamento, porque
-    // os botões são recriados do zero (listaTemas.innerHTML = '' acima os apagou)
     document.querySelectorAll('.btn-deletar-tema').forEach((btn) => {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
@@ -147,6 +156,22 @@ async function carregarTemas() {
       });
     });
 
+    document.querySelectorAll('.btn-editar-tema').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        abrirModalTema({
+          id: btn.dataset.id,
+          nome: btn.dataset.nome,
+          meta: btn.dataset.meta,
+        });
+      });
+    });
+
+    document.querySelectorAll('.btn-ver-sessoes').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        abrirModalListaSessoes(btn.dataset.id, btn.dataset.nome);
+      });
+    });
+
   } catch (erro) {
     console.error('Erro ao carregar temas:', erro);
   }
@@ -160,6 +185,8 @@ btnLogout.addEventListener('click', () => {
 // Referências dos elementos dos modais
 const modalTema = document.getElementById('modal-tema');
 const formTema = document.getElementById('form-tema');
+const tituloModalTema = document.getElementById('titulo-modal-tema');
+const btnSalvarTema = document.getElementById('btn-salvar-tema');
 const modalSessao = document.getElementById('modal-sessao');
 const formSessao = document.getElementById('form-sessao');
 const sessaoTemaNome = document.getElementById('sessao-tema-nome');
@@ -167,25 +194,142 @@ const sessaoTemaNome = document.getElementById('sessao-tema-nome');
 // Guarda o id do tema selecionado ao abrir o modal de sessão — o modal é genérico
 // e reutilizado para qualquer tema, então precisamos lembrar qual foi clicado
 let temaSelecionadoId = null;
+let temaEmEdicaoId = null; // null = criando um tema novo; com valor = editando esse id
 
-function abrirModalTema() {
+// Abre o modal em modo criação (campos vazios) ou edição (campos pré-preenchidos)
+function abrirModalTema(tema = null) {
   formTema.reset();
+  if (tema) {
+    temaEmEdicaoId = tema.id;
+    tituloModalTema.textContent = 'Editar tema';
+    btnSalvarTema.textContent = 'Salvar alterações';
+    document.getElementById('input-nome-tema').value = tema.nome;
+    document.getElementById('input-meta-tema').value = tema.meta || '';
+  } else {
+    temaEmEdicaoId = null;
+    tituloModalTema.textContent = 'Novo tema de estudo';
+    btnSalvarTema.textContent = 'Criar';
+  }
   modalTema.classList.remove('hidden');
 }
 function fecharModalTema() {
   modalTema.classList.add('hidden');
+  temaEmEdicaoId = null;
 }
 
-function abrirModalSessao(temaId, temaNome) {
+let sessaoEmEdicaoId = null; // mesma lógica do temaEmEdicaoId
+
+function abrirModalSessao(temaId, temaNome, sessao = null) {
   temaSelecionadoId = temaId;
   sessaoTemaNome.textContent = `Tema: ${temaNome}`;
   formSessao.reset();
+
+  if (sessao) {
+    sessaoEmEdicaoId = sessao.id;
+    document.getElementById('input-duracao-sessao').value = sessao.duracao;
+    document.getElementById('input-anotacao-sessao').value = sessao.anotacao;
+  } else {
+    sessaoEmEdicaoId = null;
+  }
+
   modalSessao.classList.remove('hidden');
 }
+
+formSessao.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const duracao = Number(document.getElementById('input-duracao-sessao').value);
+  const anotacao = document.getElementById('input-anotacao-sessao').value;
+
+  try {
+    if (sessaoEmEdicaoId) {
+      await api.atualizarSessao(sessaoEmEdicaoId, duracao, anotacao);
+    } else {
+      await api.criarSessao(temaSelecionadoId, duracao, anotacao);
+    }
+    fecharModalSessao();
+    carregarTemas();
+  } catch (erro) {
+    alert(erro.message);
+  }
+});
+
 function fecharModalSessao() {
   modalSessao.classList.add('hidden');
   temaSelecionadoId = null;
 }
+
+// Formata minutos totais em algo como "1h 20min" (mais legível que só "80min")
+function formatarDuracao(minutos) {
+  const horas = Math.floor(minutos / 60);
+  const min = minutos % 60;
+  if (horas === 0) return `${min}min`;
+  if (min === 0) return `${horas}h`;
+  return `${horas}h ${min}min`;
+}
+
+// Monta o HTML de uma linha de sessão dentro do modal de listagem
+function criarLinhaSessao(sessao) {
+  const data = new Date(sessao.data).toLocaleDateString('pt-BR');
+  return `
+    <div class="flex items-start justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-700/50">
+      <div>
+        <p class="text-sm font-medium">${formatarDuracao(sessao.duracao_minutos)} — ${data}</p>
+        ${sessao.anotacao ? `<p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">${sessao.anotacao}</p>` : ''}
+      </div>
+      <div class="flex gap-2 shrink-0 ml-2">
+        <button data-id="${sessao.id}" data-duracao="${sessao.duracao_minutos}" data-anotacao="${sessao.anotacao || ''}" class="btn-editar-sessao text-slate-400 hover:text-brand-500 text-sm">✎</button>
+        <button data-id="${sessao.id}" class="btn-deletar-sessao text-slate-400 hover:text-red-500 text-sm">✕</button>
+      </div>
+    </div>
+  `;
+}
+
+// Abre o modal de listagem, buscando as sessões do tema na hora (dados sempre atualizados)
+async function abrirModalListaSessoes(temaId, temaNome) {
+  temaSelecionadoId = temaId;
+  tituloListaSessoes.textContent = `Sessões — ${temaNome}`;
+  listaSessoesConteudo.innerHTML = '<p class="text-sm text-slate-400">Carregando...</p>';
+  modalListaSessoes.classList.remove('hidden');
+
+  try {
+    const sessoes = await api.listarSessoesPorTema(temaId);
+
+    if (sessoes.length === 0) {
+      listaSessoesConteudo.innerHTML = '<p class="text-sm text-slate-400 text-center py-6">Nenhuma sessão registrada ainda</p>';
+      return;
+    }
+
+    listaSessoesConteudo.innerHTML = sessoes.map(criarLinhaSessao).join('');
+
+    document.querySelectorAll('.btn-deletar-sessao').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        if (confirm('Excluir essa sessão?')) {
+          await api.deletarSessao(btn.dataset.id);
+          abrirModalListaSessoes(temaId, temaNome);
+          carregarTemas();
+        }
+      });
+    });
+
+    document.querySelectorAll('.btn-editar-sessao').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        modalListaSessoes.classList.add('hidden');
+        abrirModalSessao(temaId, temaNome, {
+          id: btn.dataset.id,
+          duracao: btn.dataset.duracao,
+          anotacao: btn.dataset.anotacao,
+        });
+      });
+    });
+
+  } catch (erro) {
+    listaSessoesConteudo.innerHTML = `<p class="text-sm text-red-500">${erro.message}</p>`;
+  }
+}
+
+document.getElementById('btn-fechar-lista-sessoes').addEventListener('click', () => {
+  modalListaSessoes.classList.add('hidden');
+});
 
 btnNovoTema.addEventListener('click', abrirModalTema);
 btnVazioNovoTema.addEventListener('click', abrirModalTema);
@@ -196,24 +340,15 @@ formTema.addEventListener('submit', async (e) => {
   e.preventDefault();
   const nome = document.getElementById('input-nome-tema').value;
   const meta = document.getElementById('input-meta-tema').value || null;
+  const metaNumero = meta ? Number(meta) : null;
 
   try {
-    await api.criarTema(nome, meta ? Number(meta) : null);
+    if (temaEmEdicaoId) {
+      await api.atualizarTema(temaEmEdicaoId, nome, metaNumero);
+    } else {
+      await api.criarTema(nome, metaNumero);
+    }
     fecharModalTema();
-    carregarTemas();
-  } catch (erro) {
-    alert(erro.message);
-  }
-});
-
-formSessao.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const duracao = Number(document.getElementById('input-duracao-sessao').value);
-  const anotacao = document.getElementById('input-anotacao-sessao').value;
-
-  try {
-    await api.criarSessao(temaSelecionadoId, duracao, anotacao);
-    fecharModalSessao();
     carregarTemas();
   } catch (erro) {
     alert(erro.message);

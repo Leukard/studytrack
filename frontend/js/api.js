@@ -63,4 +63,13 @@ const api = {
       method: 'POST',
       body: JSON.stringify({ temaId, duracaoMinutos, anotacao }),
     }),
+    
+    atualizarSessao: (id, duracaoMinutos, anotacao) =>
+    requisicaoAutenticada(`/sessoes/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ duracaoMinutos, anotacao }),
+    }),
+  deletarSessao: (id) =>
+    requisicaoAutenticada(`/sessoes/${id}`, { method: 'DELETE' }),
 };
+
