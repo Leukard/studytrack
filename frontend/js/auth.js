@@ -75,3 +75,14 @@ form.addEventListener('submit', async (e) => {
     btnEnviar.textContent = modo === 'login' ? 'Entrar' : 'Criar conta';
   }
 });
+
+// Dispara o fluxo OAuth: redireciona o navegador para a tela de login do Google.
+// Depois da confirmação, o Google redireciona de volta para redirectTo, já com a sessão criada.
+document.getElementById('btn-google').addEventListener('click', async () => {
+  await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.href.replace('index.html', 'dashboard.html'),
+    },
+  });
+});

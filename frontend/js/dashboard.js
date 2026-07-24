@@ -1,4 +1,20 @@
-exigirLogin();
+// Verifica se chegou uma sessão nova via OAuth (ex: login com Google), que vem
+// embutida na URL, não no localStorage. Se encontrar, salva no mesmo formato
+// que o resto do app usa, para tudo continuar funcionando de forma consistente.
+async function sincronizarSessaoOAuth() {
+  const { data } = await supabaseClient.auth.getSession();
+  if (data.session) {
+    localStorage.setItem('access_token', data.session.access_token);
+    // Limpa o token da URL por segurança/estética, sem recarregar a página
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+}
+
+sincronizarSessaoOAuth().then(() => {
+  exigirLogin();
+  definirSaudacao();
+  carregarTemas();
+});
 
 const statSequencia = document.getElementById('stat-sequencia');
 const listaTemas = document.getElementById('lista-temas');
@@ -354,6 +370,3 @@ formTema.addEventListener('submit', async (e) => {
     alert(erro.message);
   }
 });
-
-definirSaudacao();
-carregarTemas();
