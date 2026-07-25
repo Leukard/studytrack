@@ -347,8 +347,8 @@ document.getElementById('btn-fechar-lista-sessoes').addEventListener('click', ()
   modalListaSessoes.classList.add('hidden');
 });
 
-btnNovoTema.addEventListener('click', abrirModalTema);
-btnVazioNovoTema.addEventListener('click', abrirModalTema);
+btnNovoTema.addEventListener('click', () => abrirModalTema());
+btnVazioNovoTema.addEventListener('click', () => abrirModalTema());
 document.getElementById('btn-cancelar-tema').addEventListener('click', fecharModalTema);
 document.getElementById('btn-cancelar-sessao').addEventListener('click', fecharModalSessao);
 document.getElementById('btn-iniciar-sessao').addEventListener('click', () => {
