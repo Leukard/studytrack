@@ -75,20 +75,25 @@ function definirSaudacao() {
 
 // Monta o card de um tema, incluindo a barra de progresso calculada
 // a partir das sessões daquele tema específico
-function criarCardTema(tema, sessoesDoTema) {
+function criarCardTema(tema, sessoesDoTema, indice) {
   const card = document.createElement('div');
-  card.className = 'bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow';
-
+  card.className = 'bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-lg shadow-slate-200/50 dark:shadow-black/20 hover:shadow-xl hover:shadow-slate-300/50 dark:hover:shadow-black/40 hover:-translate-y-0.5 transition-all duration-300';
+  card.style.animation = `entradaCard 0.4s ease-out ${indice * 0.06}s both`;
+  
   const meta = tema.meta_horas_semana || 0;
   const horasEssaSemana = minutosDesde(sessoesDoTema, obterInicioSemana()) / 60;
   const progresso = meta > 0 ? Math.min(100, (horasEssaSemana / meta) * 100) : 0;
 
  card.innerHTML = `
     <div class="flex items-start justify-between mb-3">
-      <h3 class="font-semibold">${tema.nome}</h3>
+      <h3 class="font-semibold text-base tracking-tight">${tema.nome}</h3>
       <div class="flex gap-2">
-        <button data-id="${tema.id}" data-nome="${tema.nome}" data-meta="${meta}" class="btn-editar-tema text-slate-400 hover:text-brand-500 transition-colors text-sm p-2 -m-2">✎</button>
-        <button data-id="${tema.id}" class="btn-deletar-tema text-slate-400 hover:text-red-500 transition-colors text-sm p-2 -m-2">✕</button>
+        <button data-id="${tema.id}" data-nome="${tema.nome}" data-meta="${meta}" class="btn-editar-tema text-slate-400 hover:text-brand-500 transition-colors p-2 -m-2">
+        <i data-lucide="pencil" class="w-4 h-4"></i>
+        </button>
+        <button data-id="${tema.id}" class="btn-deletar-tema text-slate-400 hover:text-red-500 transition-colors p-2 -m-2">
+        <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
       </div>
     </div>
     <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">${horasEssaSemana.toFixed(1)}h de ${meta}h/semana</p>
@@ -150,9 +155,9 @@ async function carregarTemas() {
     // Junta todas as sessões numa lista única, usada pras métricas gerais do topo
     const todasSessoes = sessoesPorTema.flat();
 
-    temas.forEach((tema, i) => {
-      listaTemas.appendChild(criarCardTema(tema, sessoesPorTema[i]));
-    });
+   temas.forEach((tema, i) => {
+  listaTemas.appendChild(criarCardTema(tema, sessoesPorTema[i], i));
+});
 
     atualizarStats(temas, todasSessoes);
 
@@ -187,6 +192,8 @@ async function carregarTemas() {
         abrirModalListaSessoes(btn.dataset.id, btn.dataset.nome);
       });
     });
+
+    lucide.createIcons();
 
   } catch (erro) {
     console.error('Erro ao carregar temas:', erro);
@@ -304,18 +311,29 @@ function criarLinhaSessao(sessao) {
 async function abrirModalListaSessoes(temaId, temaNome) {
   temaSelecionadoId = temaId;
   tituloListaSessoes.textContent = `Sessões — ${temaNome}`;
-  listaSessoesConteudo.innerHTML = '<p class="text-sm text-slate-400">Carregando...</p>';
+  listaSessoesConteudo.innerHTML = Array(3).fill(`
+  <div class="p-3 rounded-lg bg-slate-50 dark:bg-slate-700/50 animate-pulse">
+    <div class="h-4 bg-slate-200 dark:bg-slate-600 rounded w-1/3 mb-2"></div>
+    <div class="h-3 bg-slate-200 dark:bg-slate-600 rounded w-2/3"></div>
+  </div>
+`).join('');
   modalListaSessoes.classList.remove('hidden');
 
   try {
     const sessoes = await api.listarSessoesPorTema(temaId);
 
     if (sessoes.length === 0) {
-      listaSessoesConteudo.innerHTML = '<p class="text-sm text-slate-400 text-center py-6">Nenhuma sessão registrada ainda</p>';
+      listaSessoesConteudo.innerHTML = `
+  <div class="text-center py-8">
+    <p class="text-3xl mb-2">⏱️</p>
+    <p class="text-sm text-slate-400">Nenhuma sessão registrada ainda</p>
+  </div>
+`;
       return;
     }
 
     listaSessoesConteudo.innerHTML = sessoes.map(criarLinhaSessao).join('');
+    lucide.createIcons();
 
     document.querySelectorAll('.btn-deletar-sessao').forEach((btn) => {
       btn.addEventListener('click', async () => {

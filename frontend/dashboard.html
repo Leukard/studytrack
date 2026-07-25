@@ -23,6 +23,10 @@
   </script>
   <style>
     body { font-family: 'Inter', sans-serif; }
+    @keyframes entradaCard {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300 min-h-screen">
@@ -41,19 +45,22 @@
 
   <main class="max-w-5xl mx-auto px-6 py-8">
 
-    <p id="saudacao" class="text-2xl font-semibold mb-6"></p>
+    <div class="mb-8">
+  <p id="saudacao" class="text-3xl font-bold tracking-tight"></p>
+  <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Aqui está um resumo da sua semana</p>
+</div>
 
     <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
       <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm">
-        <p class="text-sm text-slate-500 dark:text-slate-400">Horas essa semana</p>
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Horas essa semana</p>
         <p id="stat-horas" class="text-3xl font-bold mt-1">0h</p>
       </div>
       <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm">
-        <p class="text-sm text-slate-500 dark:text-slate-400">Sequência atual</p>
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Sequência atual</p>
         <p id="stat-sequencia" class="text-3xl font-bold mt-1">🔥 0 dias</p>
       </div>
       <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm">
-        <p class="text-sm text-slate-500 dark:text-slate-400">Meta geral atingida</p>
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Meta geral atingida</p>
         <p id="stat-meta" class="text-3xl font-bold mt-1">0%</p>
       </div>
     </section>
@@ -163,6 +170,7 @@
   <script src="js/tema.js"></script>
   <script src="js/api.js"></script>
   <script src="js/dashboard.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
 </body>
 </html>

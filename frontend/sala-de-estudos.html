@@ -20,6 +20,10 @@
   </script>
   <style>
     body { font-family: 'Inter', sans-serif; }
+    @keyframes entradaCard {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300 min-h-screen">
@@ -144,5 +148,6 @@
   <script src="js/tema.js"></script>
   <script src="js/api.js"></script>
   <script src="js/pomodoro.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </body>
 </html>
