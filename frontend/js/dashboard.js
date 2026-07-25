@@ -87,8 +87,8 @@ function criarCardTema(tema, sessoesDoTema) {
     <div class="flex items-start justify-between mb-3">
       <h3 class="font-semibold">${tema.nome}</h3>
       <div class="flex gap-2">
-        <button data-id="${tema.id}" data-nome="${tema.nome}" data-meta="${meta}" class="btn-editar-tema text-slate-400 hover:text-brand-500 transition-colors text-sm">✎</button>
-        <button data-id="${tema.id}" class="btn-deletar-tema text-slate-400 hover:text-red-500 transition-colors text-sm">✕</button>
+        <button data-id="${tema.id}" data-nome="${tema.nome}" data-meta="${meta}" class="btn-editar-tema text-slate-400 hover:text-brand-500 transition-colors text-sm p-2 -m-2">✎</button>
+        <button data-id="${tema.id}" class="btn-deletar-tema text-slate-400 hover:text-red-500 transition-colors text-sm p-2 -m-2">✕</button>
       </div>
     </div>
     <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">${horasEssaSemana.toFixed(1)}h de ${meta}h/semana</p>
