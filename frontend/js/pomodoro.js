@@ -116,6 +116,43 @@ async function encerrar() {
   }
 }
 
+
+// Mostra uma notificação do sistema, mesmo se o usuário estiver em outra aba/janela
+function notificarTrocaFase(novaFase) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+  const titulo = novaFase === 'pausa' ? 'Hora da pausa! ☕' : 'Hora de focar! 🎯';
+  const corpo = novaFase === 'pausa'
+    ? 'Você completou um ciclo de foco. Descanse um pouco.'
+    : 'A pausa acabou. Bora voltar aos estudos.';
+
+  new Notification(titulo, { body: corpo });
+}
+
+// Toca um beep curto usando a Web Audio API — não depende de nenhum arquivo de
+// áudio externo, é gerado na hora, então sempre funciona
+function tocarBeep() {
+  const contexto = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+  const oscilador = contexto.createOscillator();
+  const ganho = contexto.createGain();
+
+  oscilador.frequency.value = 880; // nota musical A5, som de "beep" claro
+  ganho.gain.value = 0.3;
+
+  oscilador.connect(ganho).connect(contexto.destination);
+  oscilador.start();
+  oscilador.stop(contexto.currentTime + 0.15); // toca por 150ms e para sozinho
+}
+
+function trocarFase() {
+  fase = fase === 'foco' ? 'pausa' : 'foco';
+  segundosRestantes = (fase === 'foco' ? FOCO_MINUTOS : PAUSA_MINUTOS) * 60;
+  atualizarDisplay();
+
+  tocarBeep();
+  notificarTrocaFase(fase);
+}
+
 document.getElementById('btn-salvar-resumo').addEventListener('click', async () => {
   const anotacao = document.getElementById('input-resumo-sessao').value || 'Sessão via Pomodoro';
 
@@ -141,6 +178,12 @@ btnIniciarPausar.addEventListener('click', iniciarOuPausar);
 btnPular.addEventListener('click', pular);
 btnEncerrar.addEventListener('click', encerrar);
 btnComecar.addEventListener('click', () => {
+  // Pede permissão de notificação aqui, dentro de um clique real do usuário —
+  // navegadores modernos bloqueiam esse pedido se ele não vier de uma interação direta
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+
   temaSelecionadoId = selectTema.value;
   temaSelecionadoNome = selectTema.options[selectTema.selectedIndex].textContent;
 
