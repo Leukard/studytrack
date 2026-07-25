@@ -351,6 +351,9 @@ btnNovoTema.addEventListener('click', abrirModalTema);
 btnVazioNovoTema.addEventListener('click', abrirModalTema);
 document.getElementById('btn-cancelar-tema').addEventListener('click', fecharModalTema);
 document.getElementById('btn-cancelar-sessao').addEventListener('click', fecharModalSessao);
+document.getElementById('btn-iniciar-sessao').addEventListener('click', () => {
+  window.location.href = 'sala-de-estudos.html';
+});
 
 formTema.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -370,3 +373,4 @@ formTema.addEventListener('submit', async (e) => {
     alert(erro.message);
   }
 });
+
