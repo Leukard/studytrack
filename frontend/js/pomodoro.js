@@ -106,15 +106,40 @@ async function encerrar() {
   }
 
   if (minutosFocadosAcumulados > 0) {
-    try {
-      await api.criarSessao(temaSelecionadoId, minutosFocadosAcumulados, 'Sessão via Pomodoro');
-    } catch (erro) {
-      alert('Não foi possível salvar a sessão: ' + erro.message);
-    }
+    // Mostra quanto tempo foi estudado e pede o resumo antes de salvar
+    document.getElementById('resumo-tempo-total').textContent =
+      `Você estudou ${formatarDuracao(minutosFocadosAcumulados)} de ${temaSelecionadoNome}`;
+    document.getElementById('modal-resumo').classList.remove('hidden');
+  } else {
+    // Sem tempo estudado (encerrou muito cedo) — não faz sentido pedir resumo
+    window.location.href = 'dashboard.html';
   }
-  window.location.href = 'dashboard.html';
 }
 
+document.getElementById('btn-salvar-resumo').addEventListener('click', async () => {
+  const anotacao = document.getElementById('input-resumo-sessao').value || 'Sessão via Pomodoro';
+
+  try {
+    await api.criarSessao(temaSelecionadoId, minutosFocadosAcumulados, anotacao);
+  } catch (erro) {
+    alert('Não foi possível salvar a sessão: ' + erro.message);
+  }
+
+  window.location.href = 'dashboard.html';
+});
+
+// Formata minutos totais em algo como "1h 20min" (mesma lógica usada no dashboard.js)
+function formatarDuracao(minutos) {
+  const horas = Math.floor(minutos / 60);
+  const min = minutos % 60;
+  if (horas === 0) return `${min}min`;
+  if (min === 0) return `${horas}h`;
+  return `${horas}h ${min}min`;
+}
+
+btnIniciarPausar.addEventListener('click', iniciarOuPausar);
+btnPular.addEventListener('click', pular);
+btnEncerrar.addEventListener('click', encerrar);
 btnComecar.addEventListener('click', () => {
   temaSelecionadoId = selectTema.value;
   temaSelecionadoNome = selectTema.options[selectTema.selectedIndex].textContent;
@@ -123,10 +148,6 @@ btnComecar.addEventListener('click', () => {
   secaoTimer.classList.remove('hidden');
   atualizarDisplay();
 });
-
-btnIniciarPausar.addEventListener('click', iniciarOuPausar);
-btnPular.addEventListener('click', pular);
-btnEncerrar.addEventListener('click', encerrar);
 
 // --- Controle de Abas de Áudio ---
 document.querySelectorAll('.btn-aba-audio').forEach((btn) => {
