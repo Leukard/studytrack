@@ -32,6 +32,9 @@
     <a href="dashboard.html" class="text-sm text-slate-500 dark:text-slate-400 hover:text-brand-500 transition-colors">← Voltar</a>
     <h1 class="text-lg font-bold text-brand-600 dark:text-brand-500">Sala de Estudos</h1>
     <div class="flex items-center gap-2">
+      <button id="btn-audio" class="p-2 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
+        <i data-lucide="music" class="w-5 h-5"></i>
+      </button>
       <button id="btn-configuracoes" class="p-2 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
         <i data-lucide="settings" class="w-5 h-5"></i>
       </button>
@@ -96,6 +99,18 @@
         </button>
       </div>
 
+      <!-- Painel de áudio: mesmo padrão visual do painel de configurações -->
+  <div id="painel-audio" class="hidden fixed inset-0 z-50">
+    <div id="overlay-audio" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+
+    <div id="painel-audio-conteudo" class="absolute right-0 top-0 h-full w-full max-w-sm bg-white dark:bg-slate-800 shadow-2xl p-6 overflow-y-auto transform transition-transform duration-300 translate-x-full">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-semibold">Música e sons</h3>
+        <button id="btn-fechar-audio" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
       <!-- Player de música lofi (YouTube embed) -->
       <!-- Mini player de música lofi — pequeno e discreto de propósito, para não competir
            visualmente com o cronômetro, que é o foco real da tela -->
@@ -157,6 +172,9 @@
           <span class="text-sm">🔊</span>
         </div>
       </div>
+
+    </div>
+  </div>
 
       <div id="modal-resumo" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4 z-50">
     <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">

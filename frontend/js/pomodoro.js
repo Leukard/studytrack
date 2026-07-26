@@ -553,6 +553,23 @@ document.querySelectorAll('.btn-ajustar-tempo').forEach((btn) => {
   });
 });
 
+const painelAudio = document.getElementById('painel-audio');
+const painelAudioConteudo = document.getElementById('painel-audio-conteudo');
+
+function abrirPainelAudio() {
+  painelAudio.classList.remove('hidden');
+  requestAnimationFrame(() => painelAudioConteudo.classList.remove('translate-x-full'));
+}
+
+function fecharPainelAudio() {
+  painelAudioConteudo.classList.add('translate-x-full');
+  setTimeout(() => painelAudio.classList.add('hidden'), 300);
+}
+
+document.getElementById('btn-audio').addEventListener('click', abrirPainelAudio);
+document.getElementById('btn-fechar-audio').addEventListener('click', fecharPainelAudio);
+document.getElementById('overlay-audio').addEventListener('click', fecharPainelAudio);
+
 // Inicializa a tela
 carregarTemasNoSelect();
 
