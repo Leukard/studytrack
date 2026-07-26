@@ -12,6 +12,13 @@ const displayTempo = document.getElementById('display-tempo');
 const btnIniciarPausar = document.getElementById('btn-iniciar-pausar');
 const btnPular = document.getElementById('btn-pular');
 const btnEncerrar = document.getElementById('btn-encerrar');
+const anelProgresso = document.getElementById('anel-progresso');
+const RAIO = 130;
+const CIRCUNFERENCIA = 2 * Math.PI * RAIO;
+
+// Define o tamanho total do traço do anel — precisa ser feito uma vez, via JS,
+// porque o valor depende do raio do círculo (não dá pra fixar direto no CSS)
+anelProgresso.style.strokeDasharray = CIRCUNFERENCIA;
 
 // --- Variáveis da Rádio ---
 const audioRadio = document.getElementById('audio-radio');
@@ -56,6 +63,12 @@ function formatarTempo(segundos) {
 function atualizarDisplay() {
   displayTempo.textContent = formatarTempo(segundosRestantes);
   labelFase.textContent = fase === 'foco' ? 'Foco' : 'Pausa';
+
+  // Calcula quanto falta da fase atual (0 = acabou de começar, 1 = terminou)
+  // e ajusta o quanto do anel fica "apagado" via stroke-dashoffset
+  const duracaoTotalFase = (fase === 'foco' ? FOCO_MINUTOS : PAUSA_MINUTOS) * 60;
+  const fracaoDecorrida = 1 - segundosRestantes / duracaoTotalFase;
+  anelProgresso.style.strokeDashoffset = CIRCUNFERENCIA * fracaoDecorrida;
 }
 
 function tick() {
@@ -162,7 +175,7 @@ document.getElementById('btn-salvar-resumo').addEventListener('click', async () 
   // veio das anotações do meio da sessão), essa parte extra também ganha horário
   const textoExtra = campoResumo.value.slice(notasAcumuladas.length);
   const anotacao = adicionarLinhaComHorario(notasAcumuladas, textoExtra) || 'Sessão via Pomodoro';
-  
+
   try {
     await api.criarSessao(temaSelecionadoId, minutosFocadosAcumulados, anotacao);
   } catch (erro) {
@@ -502,3 +515,5 @@ carregarTemasNoSelect();
 
 // Tenta iniciar o youtube caso a página já inicie com a aba do Youtube visível
 setTimeout(tentarCriarPlayerYoutube, 500);
+
+lucide.createIcons();
