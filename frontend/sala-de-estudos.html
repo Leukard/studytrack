@@ -31,9 +31,14 @@
   <header class="border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between">
     <a href="dashboard.html" class="text-sm text-slate-500 dark:text-slate-400 hover:text-brand-500 transition-colors">← Voltar</a>
     <h1 class="text-lg font-bold text-brand-600 dark:text-brand-500">Sala de Estudos</h1>
-    <button id="toggle-tema" class="p-2 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
-      <span id="icone-tema">🌙</span>
-    </button>
+    <div class="flex items-center gap-2">
+      <button id="btn-configuracoes" class="p-2 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
+        <i data-lucide="settings" class="w-5 h-5"></i>
+      </button>
+      <button id="toggle-tema" class="p-2 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
+        <span id="icone-tema">🌙</span>
+      </button>
+    </div>
   </header>
 
   <main class="max-w-2xl mx-auto px-6 py-10">
@@ -178,6 +183,48 @@
         <button id="btn-salvar-anotacao" class="flex-1 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-medium transition-all active:scale-95">
           Salvar anotação
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Painel de configurações: desliza da direita, com overlay escurecendo o fundo -->
+  <div id="painel-configuracoes" class="hidden fixed inset-0 z-50">
+    <div id="overlay-configuracoes" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+
+    <div id="painel-conteudo" class="absolute right-0 top-0 h-full w-full max-w-sm bg-white dark:bg-slate-800 shadow-2xl p-6 overflow-y-auto transform transition-transform duration-300 translate-x-full">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-semibold">Configurações</h3>
+        <button id="btn-fechar-configuracoes" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="mb-6">
+        <h4 class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-3">Timer</h4>
+
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm">Duração do foco</span>
+          <div class="flex items-center gap-2">
+            <button data-campo="foco" data-delta="-5" class="btn-ajustar-tempo w-8 h-8 rounded-full border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">−</button>
+            <span id="valor-foco" class="w-16 text-center font-medium">25 min</span>
+            <button data-campo="foco" data-delta="5" class="btn-ajustar-tempo w-8 h-8 rounded-full border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">+</button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span class="text-sm">Duração da pausa</span>
+          <div class="flex items-center gap-2">
+            <button data-campo="pausa" data-delta="-1" class="btn-ajustar-tempo w-8 h-8 rounded-full border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">−</button>
+            <span id="valor-pausa" class="w-16 text-center font-medium">5 min</span>
+            <button data-campo="pausa" data-delta="1" class="btn-ajustar-tempo w-8 h-8 rounded-full border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gancho pra personalização visual, que fica pro backlog -->
+      <div class="border-t border-slate-200 dark:border-slate-700 pt-6">
+        <h4 class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-3">Aparência</h4>
+        <p class="text-sm text-slate-400">Em breve</p>
       </div>
     </div>
   </div>

@@ -1,7 +1,7 @@
 exigirLogin();
 
-const FOCO_MINUTOS = 25;
-const PAUSA_MINUTOS = 5;
+let FOCO_MINUTOS = 25;
+let PAUSA_MINUTOS = 5;
 
 const secaoSelecaoTema = document.getElementById('secao-selecao-tema');
 const secaoTimer = document.getElementById('secao-timer');
@@ -509,6 +509,49 @@ if (selectRadio && audioRadio) {
     }
   });
 }
+
+const painelConfiguracoes = document.getElementById('painel-configuracoes');
+const painelConteudo = document.getElementById('painel-conteudo');
+const valorFoco = document.getElementById('valor-foco');
+const valorPausa = document.getElementById('valor-pausa');
+
+function abrirPainelConfiguracoes() {
+  painelConfiguracoes.classList.remove('hidden');
+  // Pequeno atraso antes de tirar o translate — garante que a transição CSS
+  // seja percebida (senão o painel "salta" direto pra posição final, sem animação)
+  requestAnimationFrame(() => painelConteudo.classList.remove('translate-x-full'));
+}
+
+function fecharPainelConfiguracoes() {
+  painelConteudo.classList.add('translate-x-full');
+  setTimeout(() => painelConfiguracoes.classList.add('hidden'), 300);
+}
+
+document.getElementById('btn-configuracoes').addEventListener('click', abrirPainelConfiguracoes);
+document.getElementById('btn-fechar-configuracoes').addEventListener('click', fecharPainelConfiguracoes);
+document.getElementById('overlay-configuracoes').addEventListener('click', fecharPainelConfiguracoes);
+
+// Ajusta as durações dentro de limites razoáveis (1 a 60min pro foco, 1 a 30min pra pausa)
+document.querySelectorAll('.btn-ajustar-tempo').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const campo = btn.dataset.campo;
+    const delta = Number(btn.dataset.delta);
+
+    if (campo === 'foco') {
+      FOCO_MINUTOS = Math.min(60, Math.max(5, FOCO_MINUTOS + delta));
+      valorFoco.textContent = `${FOCO_MINUTOS} min`;
+    } else {
+      PAUSA_MINUTOS = Math.min(30, Math.max(1, PAUSA_MINUTOS + delta));
+      valorPausa.textContent = `${PAUSA_MINUTOS} min`;
+    }
+
+    // Se o cronômetro ainda não começou a rodar, reflete a mudança na tela na hora
+    if (!rodando && fase === campo) {
+      segundosRestantes = (campo === 'foco' ? FOCO_MINUTOS : PAUSA_MINUTOS) * 60;
+      atualizarDisplay();
+    }
+  });
+});
 
 // Inicializa a tela
 carregarTemasNoSelect();
