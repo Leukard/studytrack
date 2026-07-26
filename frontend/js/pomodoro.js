@@ -105,16 +105,19 @@ async function encerrar() {
     minutosFocadosAcumulados += Math.max(0, minutosDecorridos);
   }
 
-  if (minutosFocadosAcumulados > 0) {
-    // Mostra quanto tempo foi estudado e pede o resumo antes de salvar
+ if (minutosFocadosAcumulados > 0) {
     document.getElementById('resumo-tempo-total').textContent =
       `Você estudou ${formatarDuracao(minutosFocadosAcumulados)} de ${temaSelecionadoNome}`;
+
+    document.getElementById('input-resumo-sessao').value = notasAcumuladas;
+
     document.getElementById('modal-resumo').classList.remove('hidden');
   } else {
     // Sem tempo estudado (encerrou muito cedo) — não faz sentido pedir resumo
     window.location.href = 'dashboard.html';
   }
 }
+
 
 
 // Mostra uma notificação do sistema, mesmo se o usuário estiver em outra aba/janela
@@ -154,8 +157,12 @@ function trocarFase() {
 }
 
 document.getElementById('btn-salvar-resumo').addEventListener('click', async () => {
-  const anotacao = document.getElementById('input-resumo-sessao').value || 'Sessão via Pomodoro';
-
+  const campoResumo = document.getElementById('input-resumo-sessao');
+  // Se a pessoa digitou algo a mais direto nesse campo final (além do que já
+  // veio das anotações do meio da sessão), essa parte extra também ganha horário
+  const textoExtra = campoResumo.value.slice(notasAcumuladas.length);
+  const anotacao = adicionarLinhaComHorario(notasAcumuladas, textoExtra) || 'Sessão via Pomodoro';
+  
   try {
     await api.criarSessao(temaSelecionadoId, minutosFocadosAcumulados, anotacao);
   } catch (erro) {
@@ -184,12 +191,45 @@ btnComecar.addEventListener('click', () => {
     Notification.requestPermission();
   }
 
+
   temaSelecionadoId = selectTema.value;
   temaSelecionadoNome = selectTema.options[selectTema.selectedIndex].textContent;
 
   secaoSelecaoTema.classList.add('hidden');
   secaoTimer.classList.remove('hidden');
   atualizarDisplay();
+  notasAcumuladas = '';
+});
+
+// Guarda o texto acumulado de anotações — não é um campo de tela, fica só em memória
+// até a sessão ser encerrada, quando vira a anotação salva de verdade
+let notasAcumuladas = '';
+
+const modalAnotacao = document.getElementById('modal-anotacao');
+const inputAnotacaoModal = document.getElementById('input-anotacao-modal');
+
+document.getElementById('btn-abrir-anotacao').addEventListener('click', () => {
+  inputAnotacaoModal.value = ''; // sempre abre vazio — só a entrada nova é digitada aqui
+  modalAnotacao.classList.remove('hidden');
+});
+
+document.getElementById('btn-cancelar-anotacao').addEventListener('click', () => {
+  modalAnotacao.classList.add('hidden');
+});
+
+
+function adicionarLinhaComHorario(base, textoNovo) {
+  const texto = textoNovo.trim();
+  if (!texto) return base;
+
+  const agora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const novaLinha = `[${agora}] ${texto}`;
+  return base ? `${base}\n${novaLinha}` : novaLinha;
+}
+
+document.getElementById('btn-salvar-anotacao').addEventListener('click', () => {
+  notasAcumuladas = adicionarLinhaComHorario(notasAcumuladas, inputAnotacaoModal.value);
+  modalAnotacao.classList.add('hidden');
 });
 
 // --- Controle de Abas de Áudio ---

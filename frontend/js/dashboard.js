@@ -297,7 +297,7 @@ function criarLinhaSessao(sessao) {
     <div class="flex items-start justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-700/50">
       <div>
         <p class="text-sm font-medium">${formatarDuracao(sessao.duracao_minutos)} — ${data}</p>
-        ${sessao.anotacao ? `<p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">${sessao.anotacao}</p>` : ''}
+        ${sessao.anotacao ? `<p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5 whitespace-pre-line">${sessao.anotacao}</p>` : ''}
       </div>
       <div class="flex gap-2 shrink-0 ml-2">
         <button data-id="${sessao.id}" data-duracao="${sessao.duracao_minutos}" data-anotacao="${sessao.anotacao || ''}" class="btn-editar-sessao text-slate-400 hover:text-brand-500 text-sm">✎</button>
