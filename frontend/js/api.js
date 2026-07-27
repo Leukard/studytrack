@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://studytrack-backend-w5fg.onrender.com';
 
 function getToken() {
   return localStorage.getItem('access_token');
