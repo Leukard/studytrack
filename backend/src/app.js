@@ -4,7 +4,11 @@ const app = express();
 
 // Libera requisições de qualquer origem — adequado para desenvolvimento;
 // em produção, restringir para o domínio real do frontend (cors({ origin: '...' }))
-app.use(cors());
+// Em produção, restringe pro domínio real do frontend (via variável de ambiente).
+// Em desenvolvimento, libera geral se a variável não estiver definida.
+app.use(cors({
+  origin: process.env.FRONTEND_URL || '*',
+}));
 app.use(express.json());
 
 app.get('/', (req, res) => {
