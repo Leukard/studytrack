@@ -33,7 +33,8 @@ let fase = 'foco';
 let segundosRestantes = FOCO_MINUTOS * 60;
 let intervaloId = null;
 let rodando = false;
-let minutosFocadosAcumulados = 0; 
+let minutosFocadosAcumulados = 0;
+let horarioFimFase = null; // timestamp (ms) de quando a fase atual deve terminar 
 
 // Carrega os temas
 async function carregarTemasNoSelect() {
@@ -72,7 +73,11 @@ function atualizarDisplay() {
 }
 
 function tick() {
-  segundosRestantes--;
+  // Em vez de simplesmente decrementar, recalcula quanto falta de verdade
+  // comparando com o relógio do sistema — corrige a imprecisão de abas
+  // minimizadas/em segundo plano, onde o navegador atrasa o setInterval
+  segundosRestantes = Math.max(0, Math.round((horarioFimFase - Date.now()) / 1000));
+
   if (segundosRestantes <= 0) {
     if (fase === 'foco') {
       minutosFocadosAcumulados += FOCO_MINUTOS;
@@ -95,12 +100,14 @@ function iniciarOuPausar() {
     rodando = false;
     btnIniciarPausar.textContent = 'Continuar';
   } else {
+    // Recalcula o horário de término toda vez que inicia/retoma —
+    // importante também para quando o usuário pausa e retoma depois
+    horarioFimFase = Date.now() + segundosRestantes * 1000;
     intervaloId = setInterval(tick, 1000);
     rodando = true;
     btnIniciarPausar.textContent = 'Pausar';
   }
 }
-
 function pular() {
   if (fase === 'foco') {
     const minutosDecorridos = FOCO_MINUTOS - Math.ceil(segundosRestantes / 60);
@@ -163,6 +170,7 @@ function tocarBeep() {
 function trocarFase() {
   fase = fase === 'foco' ? 'pausa' : 'foco';
   segundosRestantes = (fase === 'foco' ? FOCO_MINUTOS : PAUSA_MINUTOS) * 60;
+  horarioFimFase = Date.now() + segundosRestantes * 1000;
   atualizarDisplay();
 
   tocarBeep();
