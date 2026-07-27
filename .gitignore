@@ -2,4 +2,3 @@ node_modules/
 .env
 *.json.local
 resposta.json
-frontend/js/supabaseClient.js
