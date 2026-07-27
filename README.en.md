@@ -2,7 +2,7 @@
 
 🌐 [Ler em Português](README.md)
 
-A personal study-session tracking system — log study topics, record sessions, track your progress with real metrics, and use a built-in study room with a Pomodoro timer and ambient music to stay focused.
+A personal study-session tracking system, log study topics, record sessions, track your progress with real metrics, and use a built-in study room with a Pomodoro timer and ambient music to stay focused.
 
 Built as a portfolio project, featuring real authentication, a database protected by Row Level Security, and a fully responsive interface built from scratch.
 
@@ -89,3 +89,4 @@ Open `frontend/index.html` with a Live Server extension (VS Code) or similar.
 ---
 
 Built by [Hugo](https://github.com/Leukard) as a portfolio project.
+
