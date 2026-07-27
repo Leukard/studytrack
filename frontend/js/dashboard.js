@@ -260,6 +260,13 @@ function abrirModalSessao(temaId, temaNome, sessao = null) {
 
 formSessao.addEventListener('submit', async (e) => {
   e.preventDefault();
+
+  const botao = e.target.querySelector('button[type="submit"]');
+  if (botao.disabled) return;
+  botao.disabled = true;
+  const textoOriginal = botao.textContent;
+  botao.textContent = 'Salvando...';
+
   const duracao = Number(document.getElementById('input-duracao-sessao').value);
   const anotacao = document.getElementById('input-anotacao-sessao').value;
 
@@ -273,6 +280,9 @@ formSessao.addEventListener('submit', async (e) => {
     carregarTemas();
   } catch (erro) {
     alert(erro.message);
+  } finally {
+    botao.disabled = false;
+    botao.textContent = textoOriginal;
   }
 });
 
@@ -375,6 +385,13 @@ document.getElementById('btn-iniciar-sessao').addEventListener('click', () => {
 
 formTema.addEventListener('submit', async (e) => {
   e.preventDefault();
+
+  const botao = document.getElementById('btn-salvar-tema');
+  if (botao.disabled) return;
+  botao.disabled = true;
+  const textoOriginal = botao.textContent;
+  botao.textContent = 'Salvando...';
+
   const nome = document.getElementById('input-nome-tema').value;
   const meta = document.getElementById('input-meta-tema').value || null;
   const metaNumero = meta ? Number(meta) : null;
@@ -389,6 +406,10 @@ formTema.addEventListener('submit', async (e) => {
     carregarTemas();
   } catch (erro) {
     alert(erro.message);
+  } finally {
+    // Aqui usamos finally (diferente do botão do resumo) porque o modal
+    // continua na tela após salvar — não há redirecionamento que "resolva sozinho"
+    botao.disabled = false;
+    botao.textContent = textoOriginal;
   }
 });
-

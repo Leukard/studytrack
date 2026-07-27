@@ -177,20 +177,29 @@ function trocarFase() {
   notificarTrocaFase(fase);
 }
 
-document.getElementById('btn-salvar-resumo').addEventListener('click', async () => {
+document.getElementById('btn-salvar-resumo').addEventListener('click', async (e) => {
+  const botao = e.target;
+
+  // Impede múltiplos cliques enquanto a requisição ainda está em andamento —
+  // sem isso, uma resposta lenta do servidor (ex: backend "acordando" no Render)
+  // permite que o usuário clique várias vezes e crie sessões duplicadas
+  if (botao.disabled) return;
+  botao.disabled = true;
+  botao.textContent = 'Salvando...';
+
   const campoResumo = document.getElementById('input-resumo-sessao');
-  // Se a pessoa digitou algo a mais direto nesse campo final (além do que já
-  // veio das anotações do meio da sessão), essa parte extra também ganha horário
   const textoExtra = campoResumo.value.slice(notasAcumuladas.length);
   const anotacao = adicionarLinhaComHorario(notasAcumuladas, textoExtra) || 'Sessão via Pomodoro';
 
   try {
     await api.criarSessao(temaSelecionadoId, minutosFocadosAcumulados, anotacao);
+    window.location.href = 'dashboard.html';
   } catch (erro) {
     alert('Não foi possível salvar a sessão: ' + erro.message);
+    // Só reabilita o botão se der erro — se der certo, a página já está saindo mesmo
+    botao.disabled = false;
+    botao.textContent = 'Salvar e voltar ao dashboard';
   }
-
-  window.location.href = 'dashboard.html';
 });
 
 // Formata minutos totais em algo como "1h 20min" (mesma lógica usada no dashboard.js)
