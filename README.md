@@ -2,7 +2,7 @@
 
 🌐 [Read in English](README.en.md)
 
-Sistema pessoal de rastreamento de estudos — cadastre temas, registre sessões, acompanhe sua evolução com métricas reais, e use uma sala de estudos com cronômetro Pomodoro e música ambiente para manter o foco.
+Sistema pessoal de rastreamento de estudos, cadastre temas, registre sessões, acompanhe sua evolução com métricas reais, e use uma sala de estudos com cronômetro Pomodoro e música ambiente para manter o foco.
 
 Projeto construído para portfólio, com autenticação real, banco de dados protegido por Row Level Security, e uma interface responsiva construída do zero.
 
