@@ -71,5 +71,20 @@ const api = {
     }),
   deletarSessao: (id) =>
     requisicaoAutenticada(`/sessoes/${id}`, { method: 'DELETE' }),
+
+  listarTarefasPorTema: (temaId) =>
+    requisicaoAutenticada(`/tarefas/tema/${temaId}`),
+  criarTarefa: (temaId, descricao) =>
+    requisicaoAutenticada('/tarefas', {
+      method: 'POST',
+      body: JSON.stringify({ temaId, descricao }),
+    }),
+  atualizarTarefa: (id, campos) =>
+    requisicaoAutenticada(`/tarefas/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(campos),
+    }),
+  deletarTarefa: (id) =>
+    requisicaoAutenticada(`/tarefas/${id}`, { method: 'DELETE' }),
 };
 

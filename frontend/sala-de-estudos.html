@@ -99,6 +99,22 @@
         </button>
       </div>
 
+      <div class="max-w-sm mx-auto mb-10 text-left">
+        <h3 class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-3">Tarefas</h3>
+
+        <div id="lista-tarefas" class="space-y-2 mb-3">
+          <!-- tarefas entram aqui via JS -->
+        </div>
+
+        <form id="form-nova-tarefa" class="flex gap-2">
+          <input type="text" id="input-nova-tarefa" placeholder="Adicionar tarefa..."
+            class="flex-1 px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+          <button type="submit" class="px-3 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 text-white transition-all active:scale-95">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+          </button>
+        </form>
+      </div>
+
       <!-- Painel de áudio: mesmo padrão visual do painel de configurações -->
   <div id="painel-audio" class="hidden fixed inset-0 z-50">
     <div id="overlay-audio" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>

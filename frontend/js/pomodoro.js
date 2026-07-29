@@ -229,6 +229,7 @@ btnComecar.addEventListener('click', () => {
   secaoTimer.classList.remove('hidden');
   atualizarDisplay();
   notasAcumuladas = '';
+  carregarTarefas(); 
 });
 
 // Guarda o texto acumulado de anotações — não é um campo de tela, fica só em memória
@@ -586,6 +587,66 @@ function fecharPainelAudio() {
 document.getElementById('btn-audio').addEventListener('click', abrirPainelAudio);
 document.getElementById('btn-fechar-audio').addEventListener('click', fecharPainelAudio);
 document.getElementById('overlay-audio').addEventListener('click', fecharPainelAudio);
+
+const listaTarefas = document.getElementById('lista-tarefas');
+const formNovaTarefa = document.getElementById('form-nova-tarefa');
+const inputNovaTarefa = document.getElementById('input-nova-tarefa');
+
+// Monta o HTML de uma linha de tarefa, com checkbox e botão de excluir
+function criarLinhaTarefa(tarefa) {
+  const div = document.createElement('div');
+  div.className = 'flex items-center gap-2 group';
+  div.innerHTML = `
+    <input type="checkbox" data-id="${tarefa.id}" ${tarefa.concluida ? 'checked' : ''}
+      class="checkbox-tarefa w-4 h-4 rounded accent-brand-600 cursor-pointer" />
+    <span class="flex-1 text-sm ${tarefa.concluida ? 'line-through text-slate-400' : ''}">${tarefa.descricao}</span>
+    <button data-id="${tarefa.id}" class="btn-deletar-tarefa opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-all text-xs">
+      <i data-lucide="x" class="w-3.5 h-3.5"></i>
+    </button>
+  `;
+  return div;
+}
+
+// Busca e renderiza as tarefas do tema selecionado — chamada quando a sessão começa
+async function carregarTarefas() {
+  try {
+    const tarefas = await api.listarTarefasPorTema(temaSelecionadoId);
+    listaTarefas.innerHTML = '';
+    tarefas.forEach((tarefa) => listaTarefas.appendChild(criarLinhaTarefa(tarefa)));
+    lucide.createIcons();
+    ligarEventosTarefas();
+  } catch (erro) {
+    console.error('Erro ao carregar tarefas:', erro);
+  }
+}
+
+// Liga os checkboxes e botões de excluir — precisa ser re-executado a cada
+// renderização, já que os elementos são recriados do zero toda vez
+function ligarEventosTarefas() {
+  document.querySelectorAll('.checkbox-tarefa').forEach((chk) => {
+    chk.addEventListener('change', async () => {
+      await api.atualizarTarefa(chk.dataset.id, { concluida: chk.checked });
+      carregarTarefas();
+    });
+  });
+
+  document.querySelectorAll('.btn-deletar-tarefa').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      await api.deletarTarefa(btn.dataset.id);
+      carregarTarefas();
+    });
+  });
+}
+
+formNovaTarefa.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const descricao = inputNovaTarefa.value.trim();
+  if (!descricao) return;
+
+  await api.criarTarefa(temaSelecionadoId, descricao);
+  inputNovaTarefa.value = '';
+  carregarTarefas();
+});
 
 // Inicializa a tela
 carregarTemasNoSelect();
