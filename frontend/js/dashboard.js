@@ -70,7 +70,27 @@ function calcularSequencia(sessoes) {
 function definirSaudacao() {
   const hora = new Date().getHours();
   const periodo = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
-  saudacao.textContent = `${periodo} 👋`;
+  const nome = obterNomeUsuario();
+  saudacao.textContent = nome ? `${periodo}, ${nome} 👋` : `${periodo} 👋`;
+}
+
+// O token JWT tem 3 partes separadas por ponto; a do meio (índice 1) contém os
+// dados do usuário, codificados em base64 — não precisa de chamada extra à API
+function obterNomeUsuario() {
+  try {
+    const token = localStorage.getItem('access_token');
+    const payload = JSON.parse(atob(token.split('.')[1]));
+
+    const nomeCompleto = payload.user_metadata?.full_name || payload.user_metadata?.name;
+    if (nomeCompleto) return nomeCompleto.split(' ')[0]; // só o primeiro nome
+
+    // Sem nome disponível (login por email/senha sem Google) — usa a parte
+    // antes do @ do email como alternativa
+    const nomeDoEmail = payload.email?.split('@')[0];
+    return nomeDoEmail ? nomeDoEmail.charAt(0).toUpperCase() + nomeDoEmail.slice(1) : '';
+  } catch {
+    return '';
+  }
 }
 
 // Monta o card de um tema, incluindo a barra de progresso calculada

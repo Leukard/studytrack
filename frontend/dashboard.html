@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#4f46e5" />
   <title>StudyTrack — Dashboard</title>
+  <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
@@ -34,6 +36,9 @@
   <header class="border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between">
     <h1 class="text-xl font-bold text-brand-600 dark:text-brand-500">StudyTrack</h1>
     <div class="flex items-center gap-3">
+      <button id="btn-abrir-instalar" class="p-2 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors" title="Instalar aplicativo">
+  <i data-lucide="download" class="w-4 h-4"></i>
+</button>
       <button id="toggle-tema" class="p-2 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
         <span id="icone-tema">🌙</span>
       </button>
@@ -43,7 +48,7 @@
     </div>
   </header>
 
-  <main class="max-w-5xl mx-auto px-6 py-8">
+  <main class="max-w-5xl mx-auto px-6 py-8 pb-24">
 
     <div class="mb-8">
   <p id="saudacao" class="text-3xl font-bold tracking-tight"></p>
@@ -160,6 +165,43 @@
     </div>
   </div>
 
+<div id="banner-instalar" class="hidden relative bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-8">
+    <button id="btn-fechar-banner" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+
+    <div class="max-w-2xl mx-auto text-center">
+      <p class="text-xs font-semibold uppercase tracking-widest text-brand-500 mb-3">Instale no seu dispositivo</p>
+      <h2 class="text-2xl sm:text-3xl font-bold mb-3">Mantenha o foco a um clique</h2>
+      <p class="text-slate-500 dark:text-slate-400 mb-6">
+  Instale o StudyTrack como app: abre na própria janela, sem precisar do navegador, e carrega até mesmo sem conexão (ações como salvar dados continuam exigindo internet).
+      </p>
+
+      <button id="btn-instalar-app" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-brand-600 hover:bg-brand-500 text-white font-semibold shadow-lg shadow-brand-600/30 transition-all active:scale-95 mb-8">
+        <i data-lucide="download" class="w-4 h-4"></i>
+        Instalar agora
+      </button>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
+        <div class="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4">
+          <p class="text-xs font-mono text-brand-500 mb-2">01</p>
+          <p class="font-semibold text-sm mb-1">Clique em instalar</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Use o botão acima ou o ícone na barra de endereço.</p>
+        </div>
+        <div class="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4">
+          <p class="text-xs font-mono text-brand-500 mb-2">02</p>
+          <p class="font-semibold text-sm mb-1">Confirme a instalação</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">O navegador vai pedir uma confirmação rápida.</p>
+        </div>
+        <div class="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4">
+          <p class="text-xs font-mono text-brand-500 mb-2">03</p>
+          <p class="font-semibold text-sm mb-1">Abra em qualquer lugar</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Vai pro seu dock/tela inicial, como app nativo.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <style>
     @keyframes fadeIn {
       from { opacity: 0; transform: scale(0.95); }
@@ -171,6 +213,12 @@
   <script src="js/tema.js"></script>
   <script src="js/api.js"></script>
   <script src="js/dashboard.js"></script>
+  <script src="js/pwa.js"></script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
 
 </body>
 </html>
