@@ -1,5 +1,6 @@
 exigirLogin();
 
+
 let FOCO_MINUTOS = 25;
 let PAUSA_MINUTOS = 5;
 
@@ -88,11 +89,6 @@ function tick() {
   atualizarDisplay();
 }
 
-function trocarFase() {
-  fase = fase === 'foco' ? 'pausa' : 'foco';
-  segundosRestantes = (fase === 'foco' ? FOCO_MINUTOS : PAUSA_MINUTOS) * 60;
-  atualizarDisplay();
-}
 
 function iniciarOuPausar() {
   if (rodando) {
@@ -106,6 +102,7 @@ function iniciarOuPausar() {
     intervaloId = setInterval(tick, 1000);
     rodando = true;
     btnIniciarPausar.textContent = 'Pausar';
+    salvarEstadoTimer(); // adiciona esta linha
   }
 }
 function pular() {
@@ -125,19 +122,16 @@ async function encerrar() {
     minutosFocadosAcumulados += Math.max(0, minutosDecorridos);
   }
 
- if (minutosFocadosAcumulados > 0) {
+  if (minutosFocadosAcumulados > 0) {
     document.getElementById('resumo-tempo-total').textContent =
       `Você estudou ${formatarDuracao(minutosFocadosAcumulados)} de ${temaSelecionadoNome}`;
-
     document.getElementById('input-resumo-sessao').value = notasAcumuladas;
-
     document.getElementById('modal-resumo').classList.remove('hidden');
   } else {
-    // Sem tempo estudado (encerrou muito cedo) — não faz sentido pedir resumo
+    limparEstadoSalvo();
     window.location.href = 'dashboard.html';
   }
 }
-
 
 
 // Mostra uma notificação do sistema, mesmo se o usuário estiver em outra aba/janela
@@ -175,14 +169,11 @@ function trocarFase() {
 
   tocarBeep();
   notificarTrocaFase(fase);
+  salvarEstadoTimer(); // adiciona esta linha
 }
 
 document.getElementById('btn-salvar-resumo').addEventListener('click', async (e) => {
   const botao = e.target;
-
-  // Impede múltiplos cliques enquanto a requisição ainda está em andamento —
-  // sem isso, uma resposta lenta do servidor (ex: backend "acordando" no Render)
-  // permite que o usuário clique várias vezes e crie sessões duplicadas
   if (botao.disabled) return;
   botao.disabled = true;
   botao.textContent = 'Salvando...';
@@ -193,10 +184,10 @@ document.getElementById('btn-salvar-resumo').addEventListener('click', async (e)
 
   try {
     await api.criarSessao(temaSelecionadoId, minutosFocadosAcumulados, anotacao);
+    limparEstadoSalvo();
     window.location.href = 'dashboard.html';
   } catch (erro) {
     alert('Não foi possível salvar a sessão: ' + erro.message);
-    // Só reabilita o botão se der erro — se der certo, a página já está saindo mesmo
     botao.disabled = false;
     botao.textContent = 'Salvar e voltar ao dashboard';
   }
@@ -230,6 +221,8 @@ btnComecar.addEventListener('click', () => {
   atualizarDisplay();
   notasAcumuladas = '';
   carregarTarefas(); 
+  horarioFimFase = Date.now() + segundosRestantes * 1000;
+  salvarEstadoTimer(); // adiciona esta linha
 });
 
 // Guarda o texto acumulado de anotações — não é um campo de tela, fica só em memória
@@ -648,8 +641,94 @@ formNovaTarefa.addEventListener('submit', async (e) => {
   carregarTarefas();
 });
 
-// Inicializa a tela
-carregarTemasNoSelect();
+const CHAVE_ESTADO = 'pomodoro_estado_ativo';
+
+// Salva tudo que é necessário para reconstruir o cronômetro do zero,
+// mesmo que a página seja completamente recarregada
+function salvarEstadoTimer() {
+  if (!temaSelecionadoId) return; // não há sessão ativa, nada a salvar
+
+  localStorage.setItem(CHAVE_ESTADO, JSON.stringify({
+    temaSelecionadoId,
+    temaSelecionadoNome,
+    fase,
+    rodando,
+    horarioFimFase,
+    segundosRestantesPausado: rodando ? null : segundosRestantes,
+    minutosFocadosAcumulados,
+    notasAcumuladas,
+    focoMinutos: FOCO_MINUTOS,
+    pausaMinutos: PAUSA_MINUTOS,
+  }));
+}
+
+function limparEstadoSalvo() {
+  localStorage.removeItem(CHAVE_ESTADO);
+}
+
+// Ao carregar a página, verifica se havia uma sessão em andamento e a
+// reconstrói — sempre recalculando o tempo restante pelo relógio real,
+// nunca confiando em quanto tempo "parece" ter passado
+function restaurarEstadoSalvo() {
+  const salvo = localStorage.getItem(CHAVE_ESTADO);
+  if (!salvo) return false;
+
+  const estado = JSON.parse(salvo);
+
+  temaSelecionadoId = estado.temaSelecionadoId;
+  temaSelecionadoNome = estado.temaSelecionadoNome;
+  fase = estado.fase;
+  rodando = estado.rodando;
+  minutosFocadosAcumulados = estado.minutosFocadosAcumulados;
+  notasAcumuladas = estado.notasAcumuladas || '';
+  FOCO_MINUTOS = estado.focoMinutos;
+  PAUSA_MINUTOS = estado.pausaMinutos;
+  horarioFimFase = estado.horarioFimFase;
+
+  if (rodando) {
+    // Processa quantas fases já deveriam ter passado enquanto o app
+    // estava fechado/suspenso (normalmente 0, mas cobre o caso de o
+    // usuário ter ficado bastante tempo fora)
+    while (Date.now() >= horarioFimFase) {
+      if (fase === 'foco') minutosFocadosAcumulados += FOCO_MINUTOS;
+      fase = fase === 'foco' ? 'pausa' : 'foco';
+      const duracao = (fase === 'foco' ? FOCO_MINUTOS : PAUSA_MINUTOS) * 60;
+      horarioFimFase += duracao * 1000;
+    }
+    segundosRestantes = Math.round((horarioFimFase - Date.now()) / 1000);
+  } else {
+    segundosRestantes = estado.segundosRestantesPausado;
+  }
+
+  secaoSelecaoTema.classList.add('hidden');
+  secaoTimer.classList.remove('hidden');
+  atualizarDisplay();
+  carregarTarefas();
+
+  if (rodando) {
+    intervaloId = setInterval(tick, 1000);
+    btnIniciarPausar.textContent = 'Pausar';
+  } else {
+    btnIniciarPausar.textContent = 'Continuar';
+  }
+
+  return true;
+}
+
+// Dispara sempre que a aba/app volta a ficar visível (ex: trocou de app no
+// celular e voltou) — recalcula na hora, sem esperar até 1 segundo pelo
+// próximo tick natural do setInterval
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && rodando) {
+    tick();
+  }
+});
+
+// Inicializa a tela: tenta restaurar uma sessão salva; se não houver
+// nenhuma, carrega a lista de temas normalmente para começar do zero
+if (!restaurarEstadoSalvo()) {
+  carregarTemasNoSelect();
+}
 
 // Tenta iniciar o youtube caso a página já inicie com a aba do Youtube visível
 setTimeout(tentarCriarPlayerYoutube, 500);

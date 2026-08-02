@@ -4,19 +4,19 @@ const CACHE_NAME = 'studytrack-v2';
 // mesmo sem internet — HTML, JS próprio, ícones. CSS/fontes externas (Tailwind,
 // Google Fonts) também entram, mas via cache "melhor esforço" (ver abaixo).
 const ARQUIVOS_ESSENCIAIS = [
-  '/index.html',
-  '/dashboard.html',
-  '/sala-de-estudos.html',
-  '/js/tema.js',
-  '/js/api.js',
-  '/js/auth.js',
-  '/js/dashboard.js',
-  '/js/pomodoro.js',
-  '/js/pwa.js',
-  '/js/supabaseClient.js',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
+  'index.html',
+  'dashboard.html',
+  'sala-de-estudos.html',
+  'js/tema.js',
+  'js/api.js',
+  'js/auth.js',
+  'js/dashboard.js',
+  'js/pomodoro.js',
+  'js/pwa.js',
+  'js/supabaseClient.js',
+  'manifest.json',
+  'icons/icon-192.png',
+  'icons/icon-512.png',
 ];
 
 self.addEventListener('install', (evento) => {
