@@ -86,5 +86,12 @@ const api = {
     }),
   deletarTarefa: (id) =>
     requisicaoAutenticada(`/tarefas/${id}`, { method: 'DELETE' }),
+
+  buscarPerfil: () => requisicaoAutenticada('/perfil'),
+  salvarPerfil: (nomeExibicao) =>
+    requisicaoAutenticada('/perfil', {
+      method: 'PUT',
+      body: JSON.stringify({ nomeExibicao }),
+    }),
 };
 

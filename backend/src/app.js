@@ -27,6 +27,9 @@ app.use('/sessoes', sessaoRoutes);
 const tarefaRoutes = require('./routes/tarefaRoutes');
 app.use('/tarefas', tarefaRoutes);
 
+const perfilRoutes = require('./routes/perfilRoutes');
+app.use('/perfil', perfilRoutes);
+
 // Exporta a aplicação configurada, sem subir o servidor ainda —
 // separar isso de server.js facilita testes automatizados no futuro
 module.exports = app;

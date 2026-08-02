@@ -67,12 +67,50 @@ function calcularSequencia(sessoes) {
   return sequencia;
 }
 
-function definirSaudacao() {
+async function definirSaudacao() {
   const hora = new Date().getHours();
   const periodo = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
-  const nome = obterNomeUsuario();
-  saudacao.textContent = nome ? `${periodo}, ${nome} 👋` : `${periodo} 👋`;
+
+  // Prioridade: apelido customizado salvo no perfil > nome do Google/email (token)
+  let nome = '';
+  try {
+    const perfil = await api.buscarPerfil();
+    nome = perfil?.nome_exibicao || obterNomeUsuario();
+  } catch {
+    nome = obterNomeUsuario();
+  }
+
+  saudacao.innerHTML = `${nome ? `${periodo}, ${nome}` : periodo} 👋
+    <button id="btn-editar-perfil" class="text-slate-400 hover:text-brand-500 transition-colors">
+      <i data-lucide="pencil" class="w-4 h-4"></i>
+    </button>`;
+
+  lucide.createIcons();
+  document.getElementById('btn-editar-perfil').addEventListener('click', abrirModalPerfil);
 }
+
+const modalPerfil = document.getElementById('modal-perfil');
+const inputNomePerfil = document.getElementById('input-nome-perfil');
+
+function abrirModalPerfil() {
+  inputNomePerfil.value = '';
+  modalPerfil.classList.remove('hidden');
+}
+
+document.getElementById('btn-cancelar-perfil').addEventListener('click', () => {
+  modalPerfil.classList.add('hidden');
+});
+
+document.getElementById('btn-salvar-perfil').addEventListener('click', async () => {
+  const nome = inputNomePerfil.value.trim();
+  if (!nome) return;
+
+  await api.salvarPerfil(nome);
+  modalPerfil.classList.add('hidden');
+  definirSaudacao(); // atualiza a saudação na hora, sem precisar recarregar a página
+});
+
+
 
 // O token JWT tem 3 partes separadas por ponto; a do meio (índice 1) contém os
 // dados do usuário, codificados em base64 — não precisa de chamada extra à API
