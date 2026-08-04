@@ -471,3 +471,159 @@ formTema.addEventListener('submit', async (e) => {
     botao.textContent = textoOriginal;
   }
 });
+
+let modoRelatorio = 'semana'; // 'semana' | 'mes'
+let offsetRelatorio = 0; // 0 = período atual, -1 = anterior, etc.
+
+const modalRelatorio = document.getElementById('modal-relatorio');
+const labelPeriodo = document.getElementById('label-periodo');
+
+// Calcula o início e fim do período selecionado, considerando o offset
+// de navegação (quantos períodos atrás/à frente do atual)
+function calcularIntervaloRelatorio() {
+  const hoje = new Date();
+
+  if (modoRelatorio === 'semana') {
+    const inicio = obterInicioSemana(); // função que já existe, reaproveitada
+    inicio.setDate(inicio.getDate() + offsetRelatorio * 7);
+    const fim = new Date(inicio);
+    fim.setDate(fim.getDate() + 7);
+    return { inicio, fim };
+  } else {
+    const inicio = new Date(hoje.getFullYear(), hoje.getMonth() + offsetRelatorio, 1);
+    const fim = new Date(hoje.getFullYear(), hoje.getMonth() + offsetRelatorio + 1, 1);
+    return { inicio, fim };
+  }
+}
+
+function formatarLabelPeriodo(inicio, fim) {
+  if (modoRelatorio === 'semana') {
+    const opcoes = { day: '2-digit', month: '2-digit' };
+    const fimReal = new Date(fim);
+    fimReal.setDate(fimReal.getDate() - 1);
+    return `${inicio.toLocaleDateString('pt-BR', opcoes)} - ${fimReal.toLocaleDateString('pt-BR', opcoes)}`;
+  }
+  return inicio.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+}
+
+// Para o modo "mês", a meta semanal precisa ser escalada proporcionalmente
+// aos dias do período (uma meta de 5h/semana vira ~21h num mês de 30 dias)
+function escalarMeta(metaSemanal, diasNoPeriodo) {
+  return metaSemanal * (diasNoPeriodo / 7);
+}
+
+async function carregarRelatorio() {
+  const { inicio, fim } = calcularIntervaloRelatorio();
+  labelPeriodo.textContent = formatarLabelPeriodo(inicio, fim);
+
+  const temas = await api.listarTemas();
+  const sessoesPorTema = await Promise.all(temas.map((t) => api.listarSessoesPorTema(t.id)));
+
+  const diasNoPeriodo = Math.round((fim - inicio) / (1000 * 60 * 60 * 24));
+  let horasTotais = 0;
+  let sessoesTotais = 0;
+
+  const container = document.getElementById('relatorio-temas');
+  container.innerHTML = '';
+
+  temas.forEach((tema, i) => {
+    // Filtra só as sessões que caem dentro do período selecionado
+    const sessoesNoPeriodo = sessoesPorTema[i].filter((s) => {
+      const data = new Date(s.data);
+      return data >= inicio && data < fim;
+    });
+
+    const minutos = sessoesNoPeriodo.reduce((total, s) => total + s.duracao_minutos, 0);
+    const horas = minutos / 60;
+    horasTotais += horas;
+    sessoesTotais += sessoesNoPeriodo.length;
+
+    const meta = tema.meta_horas_semana ? escalarMeta(tema.meta_horas_semana, diasNoPeriodo) : 0;
+    const progresso = meta > 0 ? Math.min(100, (horas / meta) * 100) : 0;
+
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <div class="flex items-center justify-between mb-1">
+        <span class="text-sm font-medium">${tema.nome}</span>
+        <span class="text-xs text-slate-500 dark:text-slate-400">${horas.toFixed(1)}h${meta > 0 ? ` de ${meta.toFixed(1)}h` : ''}</span>
+      </div>
+      <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2">
+        <div class="bg-brand-500 h-2 rounded-full transition-all duration-500" style="width: ${progresso}%"></div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+
+  document.getElementById('relatorio-horas-total').textContent = `${horasTotais.toFixed(1)}h`;
+  document.getElementById('relatorio-sessoes-total').textContent = sessoesTotais;
+
+  document.getElementById('relatorio-horas-total').textContent = `${horasTotais.toFixed(1)}h`;
+  document.getElementById('relatorio-sessoes-total').textContent = sessoesTotais;
+
+  // Sequência calculada com base em TODAS as sessões (não só do período
+  // selecionado) — sequência é sempre "até hoje", faz sentido mostrar
+  // o valor real atual, mesmo se você estiver navegando por um mês passado
+  const todasSessoes = sessoesPorTema.flat();
+  document.getElementById('relatorio-sequencia').textContent = `🔥 ${calcularSequencia(todasSessoes)}`;
+
+  // Monta a lista detalhada: uma linha por sessão do período, mais recente primeiro
+  const detalhamento = [];
+  temas.forEach((tema, i) => {
+    sessoesPorTema[i].forEach((s) => {
+      const data = new Date(s.data);
+      if (data >= inicio && data < fim) {
+        detalhamento.push({ data, nomeTema: tema.nome, minutos: s.duracao_minutos });
+      }
+    });
+  });
+  detalhamento.sort((a, b) => b.data - a.data);
+
+  const containerDetalhe = document.getElementById('relatorio-detalhamento');
+  if (detalhamento.length === 0) {
+    containerDetalhe.innerHTML = '<p class="text-slate-400 text-center py-4">Nenhuma sessão nesse período</p>';
+  } else {
+    containerDetalhe.innerHTML = detalhamento.map((item) => `
+      <div class="flex items-center justify-between py-2 border-b border-slate-100 dark:border-slate-700">
+        <div>
+          <span class="text-slate-400">${item.data.toLocaleDateString('pt-BR')}</span>
+          <span class="ml-2">${item.nomeTema}</span>
+        </div>
+        <span class="font-medium">${formatarDuracao(item.minutos)}</span>
+      </div>
+    `).join('');
+  }
+}
+
+
+function abrirModalRelatorio() {
+  modalRelatorio.classList.remove('hidden');
+  carregarRelatorio();
+}
+
+document.getElementById('btn-relatorio').addEventListener('click', abrirModalRelatorio);
+document.getElementById('btn-fechar-relatorio').addEventListener('click', () => {
+  modalRelatorio.classList.add('hidden');
+});
+
+document.querySelectorAll('.btn-modo-relatorio').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    modoRelatorio = btn.dataset.modo;
+    offsetRelatorio = 0; // volta pro período atual ao trocar semana/mês
+    document.querySelectorAll('.btn-modo-relatorio').forEach((b) => b.classList.remove('bg-white', 'dark:bg-slate-600', 'shadow'));
+    btn.classList.add('bg-white', 'dark:bg-slate-600', 'shadow');
+    carregarRelatorio();
+  });
+});
+
+document.getElementById('btn-periodo-anterior').addEventListener('click', () => {
+  offsetRelatorio--;
+  carregarRelatorio();
+});
+
+document.getElementById('btn-periodo-proximo').addEventListener('click', () => {
+  offsetRelatorio++;
+  carregarRelatorio();
+});
+
+// Marca "Semana" como ativo por padrão
+document.querySelector('[data-modo="semana"]').classList.add('bg-white', 'dark:bg-slate-600', 'shadow');
