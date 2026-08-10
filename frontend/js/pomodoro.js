@@ -429,11 +429,17 @@ function pararSomAmbiente() {
     noiseSource.stop();
     noiseSource = null;
   }
+  if (osciladorLfo) {
+    osciladorLfo.stop();
+    osciladorLfo = null;
+  }
   tipoSomAtivo = null;
   document.querySelectorAll('.btn-som-ambiente').forEach((btn) => {
     btn.classList.remove('bg-brand-600', 'text-white', 'border-brand-600');
   });
 }
+
+let osciladorLfo = null; // referência ao LFO das ondas, para parar corretamente
 
 function tocarSomAmbiente(tipo) {
   if (tipoSomAtivo === tipo) {
@@ -450,19 +456,33 @@ function tocarSomAmbiente(tipo) {
   ganhoAmbiente = audioContext.createGain();
   ganhoAmbiente.gain.value = Number(inputVolume.value) / 100;
 
-  const buffer = criarBufferRuido(audioContext);
+  let buffer;
+  if (tipo === 'rosa') {
+    buffer = criarBufferRuidoRosa(audioContext);
+  } else {
+    buffer = criarBufferRuido(audioContext); // branco, chuva e ondas partem do branco
+  }
+
   noiseSource = audioContext.createBufferSource();
   noiseSource.buffer = buffer;
   noiseSource.loop = true;
 
-  if (tipo === 'branco') {
+  if (tipo === 'branco' || tipo === 'rosa') {
     noiseSource.connect(ganhoAmbiente).connect(audioContext.destination);
   } else if (tipo === 'chuva') {
+    // Filtro mais largo e grave (lowpass) em vez do bandpass estreito anterior —
+    // resolve o "chiado"/som metálico que o filtro antigo causava
     filtroChuva = audioContext.createBiquadFilter();
-    filtroChuva.type = 'bandpass';
-    filtroChuva.frequency.value = 500;
+    filtroChuva.type = 'lowpass';
+    filtroChuva.frequency.value = 2500;
     filtroChuva.Q.value = 0.5;
     noiseSource.connect(filtroChuva).connect(ganhoAmbiente).connect(audioContext.destination);
+  } else if (tipo === 'ondas') {
+    const filtroOndas = audioContext.createBiquadFilter();
+    filtroOndas.type = 'lowpass';
+    filtroOndas.frequency.value = 600;
+    noiseSource.connect(filtroOndas).connect(ganhoAmbiente).connect(audioContext.destination);
+    osciladorLfo = criarOscilOndas(audioContext, ganhoAmbiente);
   }
 
   noiseSource.start();
@@ -474,6 +494,49 @@ function tocarSomAmbiente(tipo) {
 document.querySelectorAll('.btn-som-ambiente').forEach((btn) => {
   btn.addEventListener('click', () => tocarSomAmbiente(btn.dataset.tipo));
 });
+
+// Ruído rosa: mesma ideia do ruído branco, mas atenuando gradualmente as
+// frequências mais agudas — soa mais suave, menos "áspero" ao ouvido
+function criarBufferRuidoRosa(contexto) {
+  const duracaoSegundos = 2;
+  const tamanho = contexto.sampleRate * duracaoSegundos;
+  const buffer = contexto.createBuffer(1, tamanho, contexto.sampleRate);
+  const dados = buffer.getChannelData(0);
+
+  // Algoritmo de Paul Kellet: filtra o ruído branco em camadas,
+  // aproximando o espectro característico do ruído rosa
+  let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+  for (let i = 0; i < tamanho; i++) {
+    const branco = Math.random() * 2 - 1;
+    b0 = 0.99886 * b0 + branco * 0.0555179;
+    b1 = 0.99332 * b1 + branco * 0.0750759;
+    b2 = 0.96900 * b2 + branco * 0.1538520;
+    b3 = 0.86650 * b3 + branco * 0.3104856;
+    b4 = 0.55000 * b4 + branco * 0.5329522;
+    b5 = -0.7616 * b5 - branco * 0.0168980;
+    dados[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + branco * 0.5362) * 0.11;
+    b6 = branco * 0.115926;
+  }
+
+  return buffer;
+}
+
+// Simula ondas: ruído filtrado grave, com o volume "respirando" lentamente
+// (LFO controlando o ganho) para imitar o vaivém natural das ondas
+function criarOscilOndas(contexto, ganhoDestino) {
+  const lfo = contexto.createOscillator();
+  const ganhoLfo = contexto.createGain();
+
+  lfo.frequency.value = 0.15; // um ciclo completo a cada ~6.5 segundos
+  ganhoLfo.gain.value = 0.3; // o quanto o volume varia (30% pra cima/baixo)
+
+  lfo.connect(ganhoLfo);
+  ganhoLfo.connect(ganhoDestino.gain); // modula o próprio ganho principal
+  lfo.start();
+
+  return lfo; // guardamos a referência pra poder parar depois
+}
+
 
 // ==========================================
 // CONTROLES DE VOLUME COMPARTILHADOS E RÁDIO
