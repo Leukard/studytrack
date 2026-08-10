@@ -627,3 +627,18 @@ document.getElementById('btn-periodo-proximo').addEventListener('click', () => {
 
 // Marca "Semana" como ativo por padrão
 document.querySelector('[data-modo="semana"]').classList.add('bg-white', 'dark:bg-slate-600', 'shadow');
+
+const painelCor = document.getElementById('painel-cor');
+const painelCorConteudo = document.getElementById('painel-cor-conteudo');
+
+document.getElementById('btn-cor-dashboard').addEventListener('click', () => {
+  painelCor.classList.remove('hidden');
+  requestAnimationFrame(() => painelCorConteudo.classList.remove('translate-x-full'));
+});
+document.getElementById('btn-fechar-cor').addEventListener('click', () => {
+  painelCorConteudo.classList.add('translate-x-full');
+  setTimeout(() => painelCor.classList.add('hidden'), 300);
+});
+document.getElementById('overlay-cor').addEventListener('click', () => {
+  document.getElementById('btn-fechar-cor').click();
+});

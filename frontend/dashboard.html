@@ -17,7 +17,7 @@
         extend: {
           fontFamily: { sans: ['Inter', 'sans-serif'] },
           colors: {
-            brand: { 500: '#6366f1', 600: '#4f46e5' },
+            brand: { 500: 'var(--cor-brand-500)', 600: 'var(--cor-brand-600)' },
           },
         },
       },
@@ -28,7 +28,12 @@
     @keyframes entradaCard {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
+  
     }
+    :root {
+  --cor-brand-500: #6366f1;
+  --cor-brand-600: #4f46e5;
+}
   </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300 min-h-screen">
@@ -41,6 +46,9 @@
 </button>
 <button id="btn-relatorio" class="p-2 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors" title="Relatório">
   <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+</button>
+<button id="btn-cor-dashboard" class="p-2 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors" title="Cor de destaque">
+  <i data-lucide="palette" class="w-4 h-4"></i>
 </button>
       <button id="toggle-tema" class="p-2 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
         <span id="icone-tema">🌙</span>
@@ -269,6 +277,26 @@
 </div>
     </div>
   </div>
+  
+  <div id="painel-cor" class="hidden fixed inset-0 z-50">
+  <div id="overlay-cor" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+  <div id="painel-cor-conteudo" class="absolute right-0 top-0 h-full w-full max-w-xs bg-white dark:bg-slate-800 shadow-2xl p-6 transform transition-transform duration-300 translate-x-full">
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="text-lg font-semibold">Cor de destaque</h3>
+      <button id="btn-fechar-cor" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <button data-c600="#4f46e5" class="btn-cor-tema w-9 h-9 rounded-full bg-[#4f46e5]"></button>
+      <button data-c600="#db2777" class="btn-cor-tema w-9 h-9 rounded-full bg-[#db2777]"></button>
+      <button data-c600="#059669" class="btn-cor-tema w-9 h-9 rounded-full bg-[#059669]"></button>
+      <button data-c600="#ea580c" class="btn-cor-tema w-9 h-9 rounded-full bg-[#ea580c]"></button>
+      <button data-c600="#0284c7" class="btn-cor-tema w-9 h-9 rounded-full bg-[#0284c7]"></button>
+      <input type="color" class="input-cor-personalizada w-9 h-9 rounded-full cursor-pointer border-0 p-0 bg-transparent" title="Cor personalizada" />
+    </div>
+  </div>
+</div>
 
   <style>
     @keyframes fadeIn {
