@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -274,10 +275,27 @@
   </div>
 </div>
 
+<div class="border-t border-slate-200 dark:border-slate-700 pt-6 mt-6">
+  <h4 class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-3">Fundo da sala de estudos</h4>
+  <div class="grid grid-cols-3 gap-2 mb-3">
+    <button data-fundo="none" class="btn-fundo h-14 rounded-lg bg-slate-100 dark:bg-slate-700 border-2 border-transparent flex items-center justify-center text-xs text-slate-400">Nenhum</button>
+    <button data-fundo="linear-gradient(135deg, #1e1b4b, #4f46e5)" class="btn-fundo h-14 rounded-lg border-2 border-transparent" style="background: linear-gradient(135deg, #1e1b4b, #4f46e5);"></button>
+    <button data-fundo="linear-gradient(135deg, #0f172a, #164e63)" class="btn-fundo h-14 rounded-lg border-2 border-transparent" style="background: linear-gradient(135deg, #0f172a, #164e63);"></button>
+    <button data-fundo="linear-gradient(135deg, #1a2e1a, #166534)" class="btn-fundo h-14 rounded-lg border-2 border-transparent" style="background: linear-gradient(135deg, #1a2e1a, #166534);"></button>
+    <button data-fundo="linear-gradient(135deg, #3b0764, #7c3aed)" class="btn-fundo h-14 rounded-lg border-2 border-transparent" style="background: linear-gradient(135deg, #3b0764, #7c3aed);"></button>
+    <button data-fundo="linear-gradient(135deg, #431407, #ea580c)" class="btn-fundo h-14 rounded-lg border-2 border-transparent" style="background: linear-gradient(135deg, #431407, #ea580c);"></button>
+  </div>
+  <label class="block">
+    <span class="text-sm text-brand-600 dark:text-brand-500 cursor-pointer hover:underline">📷 Enviar minha própria foto</span>
+    <input type="file" id="input-upload-fundo" accept="image/*" class="hidden" />
+  </label>
+</div>
+
   </main>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <script src="js/tema.js"></script>
   <script src="js/api.js"></script>
+  <script src="js/supabaseClient.js"></script>
   <script src="js/pomodoro.js"></script>
   <script>
   if ('serviceWorker' in navigator) {

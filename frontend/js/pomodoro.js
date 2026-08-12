@@ -793,6 +793,80 @@ if (!restaurarEstadoSalvo()) {
   carregarTemasNoSelect();
 }
 
+// Aplica um gradiente CSS como fundo da tela do cronômetro, ou remove
+// (fundo padrão) se o valor for 'none'
+function aplicarFundo(valor) {
+  const body = document.body;
+  if (valor === 'none' || !valor) {
+    body.style.backgroundImage = '';
+  } else if (valor.startsWith('linear-gradient')) {
+    body.style.backgroundImage = valor;
+  } else {
+    // URL de imagem (usado depois, no upload de foto própria)
+    body.style.backgroundImage = `url('${valor}')`;
+    body.style.backgroundSize = 'cover';
+    body.style.backgroundPosition = 'center';
+  }
+  localStorage.setItem('fundo-sala-estudos', valor);
+}
+
+// Restaura o fundo salvo ao carregar a página
+const fundoSalvo = localStorage.getItem('fundo-sala-estudos');
+if (fundoSalvo) aplicarFundo(fundoSalvo);
+
+document.querySelectorAll('.btn-fundo').forEach((btn) => {
+  btn.addEventListener('click', () => aplicarFundo(btn.dataset.fundo));
+});
+
+// Extrai o ID do usuário direto do token (mesma técnica usada no dashboard.js
+// para pegar o nome) — evita precisar de uma chamada extra à API só pra isso
+function obterUserId() {
+  try {
+    const token = localStorage.getItem('access_token');
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.sub;
+  } catch {
+    return null;
+  }
+}
+
+// Cliente autenticado criado uma única vez, reaproveitado em cada upload —
+// evita acumular múltiplas instâncias do GoTrueClient na mesma página
+const tokenParaUpload = localStorage.getItem('access_token');
+const clienteAutenticado = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  global: { headers: { Authorization: `Bearer ${tokenParaUpload}` } },
+});
+
+document.getElementById('input-upload-fundo').addEventListener('change', async (evento) => {
+  const arquivo = evento.target.files[0];
+  if (!arquivo) return;
+
+  if (arquivo.size > 5 * 1024 * 1024) {
+    alert('A imagem deve ter no máximo 5MB.');
+    return;
+  }
+
+  const userId = obterUserId();
+  const extensao = arquivo.name.split('.').pop();
+  const caminho = `${userId}/fundo.${extensao}`;
+
+  try {
+    const { error } = await clienteAutenticado.storage
+  .from('fundos')
+  .upload(caminho, arquivo, { upsert: true });
+
+    if (error) throw error;
+
+    const { data } = clienteAutenticado.storage.from('fundos').getPublicUrl(caminho);
+// Adiciona um parâmetro com o timestamp atual — isso muda a URL "tecnicamente"
+// (do ponto de vista do navegador), forçando ele a buscar a versão nova
+// em vez de usar a imagem antiga que tinha em cache
+aplicarFundo(`${data.publicUrl}?t=${Date.now()}`);
+  } catch (erro) {
+    alert('Não foi possível enviar a imagem: ' + erro.message);
+  }
+});
+
 // Tenta iniciar o youtube caso a página já inicie com a aba do Youtube visível
 setTimeout(tentarCriarPlayerYoutube, 500);
 

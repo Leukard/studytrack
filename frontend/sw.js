@@ -55,8 +55,10 @@ self.addEventListener('fetch', (evento) => {
       .then((resposta) => {
         // Guarda uma cópia no cache sempre que conseguir buscar da rede,
         // mantendo o cache atualizado automaticamente com o uso normal
-        const copia = resposta.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(evento.request, copia));
+        if (evento.request.method === 'GET') {
+          const copia = resposta.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(evento.request, copia));
+        }
         return resposta;
       })
       .catch(() => caches.match(evento.request))
