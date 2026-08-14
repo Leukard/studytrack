@@ -71,6 +71,8 @@ function atualizarDisplay() {
   const duracaoTotalFase = (fase === 'foco' ? FOCO_MINUTOS : PAUSA_MINUTOS) * 60;
   const fracaoDecorrida = 1 - segundosRestantes / duracaoTotalFase;
   anelProgresso.style.strokeDashoffset = CIRCUNFERENCIA * fracaoDecorrida;
+
+  sincronizarPip();
 }
 
 function tick() {
@@ -104,6 +106,7 @@ function iniciarOuPausar() {
     btnIniciarPausar.textContent = 'Pausar';
     salvarEstadoTimer(); // adiciona esta linha
   }
+  sincronizarPip();
 }
 function pular() {
   if (fase === 'foco') {
@@ -866,6 +869,103 @@ aplicarFundo(`${data.publicUrl}?t=${Date.now()}`);
     alert('Não foi possível enviar a imagem: ' + erro.message);
   }
 });
+
+
+let janelaPip = null;
+let displayTempoPip = null;
+let labelFasePip = null;
+let btnIniciarPausarPip = null;
+let anelProgressoPip = null;
+
+async function abrirModoPip() {
+  if (!('documentPictureInPicture' in window)) {
+    alert('Janela flutuante não é suportada nesse navegador. Funciona no Chrome ou Edge (versões recentes).');
+    return;
+  }
+
+  janelaPip = await documentPictureInPicture.requestWindow({ width: 260, height: 300 });
+
+  // Monta o HTML da mini-janela primeiro — o Tailwind, carregado a seguir,
+  // vai escanear esse conteúdo e gerar só as classes CSS necessárias
+  janelaPip.document.head.innerHTML = `
+    <meta charset="UTF-8" />
+    <style>
+      body { margin: 0; font-family: 'Inter', sans-serif; }
+      :root {
+        --cor-brand-500: ${getComputedStyle(document.documentElement).getPropertyValue('--cor-brand-500')};
+        --cor-brand-600: ${getComputedStyle(document.documentElement).getPropertyValue('--cor-brand-600')};
+      }
+    </style>
+  `;
+ janelaPip.document.body.innerHTML = `
+  <div class="bg-slate-50 dark:bg-slate-900 flex flex-col items-center justify-center h-screen gap-2 px-4">
+    <div class="relative w-48 h-48">
+      <svg class="transform -rotate-90 w-full h-full" viewBox="0 0 300 300">
+        <circle cx="150" cy="150" r="130" stroke-width="14" fill="none" class="text-slate-200 dark:text-slate-700" stroke="currentColor" />
+        <circle id="pip-anel-progresso" cx="150" cy="150" r="130" stroke-width="14" fill="none"
+          stroke-linecap="round" class="text-brand-600 dark:text-brand-500" stroke="currentColor"
+          style="transition: stroke-dashoffset 1s linear;" />
+      </svg>
+      <div class="absolute inset-0 flex flex-col items-center justify-center">
+        <p id="pip-label-fase" class="text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1"></p>
+        <p id="pip-display-tempo" class="text-3xl font-extrabold tabular-nums text-slate-900 dark:text-white"></p>
+      </div>
+    </div>
+    <button id="pip-btn-iniciar" class="px-5 py-1.5 rounded-full bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold transition-all active:scale-95"></button>
+  </div>
+`;
+
+  janelaPip.document.documentElement.classList.toggle('dark', document.documentElement.classList.contains('dark'));
+
+  // Carrega o Tailwind DENTRO da janela PiP — ele vai escanear o conteúdo
+  // que já colocamos acima e gerar as classes CSS necessárias sozinho
+  const scriptTailwind = janelaPip.document.createElement('script');
+  scriptTailwind.src = 'https://cdn.tailwindcss.com';
+  scriptTailwind.onload = () => {
+    janelaPip.tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: { brand: { 500: 'var(--cor-brand-500)', 600: 'var(--cor-brand-600)' } },
+        },
+      },
+    };
+  };
+  janelaPip.document.head.appendChild(scriptTailwind);
+
+ displayTempoPip = janelaPip.document.getElementById('pip-display-tempo');
+labelFasePip = janelaPip.document.getElementById('pip-label-fase');
+btnIniciarPausarPip = janelaPip.document.getElementById('pip-btn-iniciar');
+anelProgressoPip = janelaPip.document.getElementById('pip-anel-progresso');
+anelProgressoPip.style.strokeDasharray = CIRCUNFERENCIA; // mesmo raio/circunferência do anel principal
+
+  sincronizarPip();
+  btnIniciarPausarPip.addEventListener('click', iniciarOuPausar);
+
+  janelaPip.addEventListener('pagehide', () => {
+    janelaPip = null;
+    displayTempoPip = null;
+    labelFasePip = null;
+    btnIniciarPausarPip = null;
+  });
+}
+
+// Atualiza a mini-janela, se ela estiver aberta — chamada sempre que o
+// cronômetro principal também é atualizado, mantendo os dois em sincronia
+function sincronizarPip() {
+  if (!janelaPip) return;
+  displayTempoPip.textContent = formatarTempo(segundosRestantes);
+  labelFasePip.textContent = fase === 'foco' ? 'Foco' : 'Pausa';
+  btnIniciarPausarPip.textContent = rodando ? 'Pausar' : (segundosRestantes < (fase === 'foco' ? FOCO_MINUTOS : PAUSA_MINUTOS) * 60 ? 'Continuar' : 'Iniciar');
+
+  // Mesmo cálculo de progresso usado no anel principal, reaplicado aqui
+  const duracaoTotalFase = (fase === 'foco' ? FOCO_MINUTOS : PAUSA_MINUTOS) * 60;
+  const fracaoDecorrida = 1 - segundosRestantes / duracaoTotalFase;
+  anelProgressoPip.style.strokeDashoffset = CIRCUNFERENCIA * fracaoDecorrida;
+}
+
+document.getElementById('btn-pip').addEventListener('click', abrirModoPip);
+
 
 // Tenta iniciar o youtube caso a página já inicie com a aba do Youtube visível
 setTimeout(tentarCriarPlayerYoutube, 500);
