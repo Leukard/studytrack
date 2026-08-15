@@ -642,3 +642,97 @@ document.getElementById('btn-fechar-cor').addEventListener('click', () => {
 document.getElementById('overlay-cor').addEventListener('click', () => {
   document.getElementById('btn-fechar-cor').click();
 });
+
+// Cada passo aponta pra um elemento da tela (via seletor CSS) e o texto
+// explicativo mostrado ao lado dele
+const passosTour = [
+  { seletor: '#btn-novo-tema', titulo: 'Crie seus temas', texto: 'Cadastre o que você quer estudar — cada tema pode ter sua própria meta de horas semanais.' },
+  { seletor: '#btn-iniciar-sessao', titulo: 'Sala de Estudos', texto: 'Inicie uma sessão com cronômetro Pomodoro, música de fundo e lista de tarefas.' },
+  { seletor: '#secao-stats', titulo: 'Acompanhe seu progresso', texto: 'Horas da semana, sequência de dias e % da meta atingida — tudo calculado automaticamente.' },
+  { seletor: '#btn-relatorio', titulo: 'Relatórios', texto: 'Veja um detalhamento semanal ou mensal de tudo que você estudou.' },
+  { seletor: '#btn-cor-dashboard', titulo: 'Deixe do seu jeito', texto: 'Personalize a cor de destaque do app aqui.' },
+];
+let passoAtualTour = 0;
+
+function removerDestaqueAnterior() {
+  document.querySelectorAll('.tour-highlight').forEach((el) => el.classList.remove('tour-highlight'));
+}
+
+function posicionarTooltipTour(elemento, tooltip) {
+  const retangulo = elemento.getBoundingClientRect();
+  const alturaTooltip = tooltip.offsetHeight;
+  const larguraTooltip = tooltip.offsetWidth;
+
+  let topo = retangulo.bottom + 12;
+  let esquerda = retangulo.left;
+
+  // Mantém o tooltip dentro da tela, ajustando se estiver perto da borda
+  if (esquerda + larguraTooltip > window.innerWidth - 16) {
+    esquerda = window.innerWidth - larguraTooltip - 16;
+  }
+  if (topo + alturaTooltip > window.innerHeight - 16) {
+    topo = retangulo.top - alturaTooltip - 12; // mostra acima, se não couber embaixo
+  }
+
+  tooltip.style.top = `${topo}px`;
+  tooltip.style.left = `${Math.max(16, esquerda)}px`;
+}
+
+function mostrarPassoTour() {
+  removerDestaqueAnterior();
+
+  if (passoAtualTour >= passosTour.length) {
+    encerrarTour();
+    return;
+  }
+
+  const passo = passosTour[passoAtualTour];
+  const elemento = document.querySelector(passo.seletor);
+
+  // Se o elemento não existir por algum motivo, pula pro próximo passo
+  // em vez de travar o tour
+  if (!elemento) {
+    passoAtualTour++;
+    mostrarPassoTour();
+    return;
+  }
+
+  elemento.classList.add('tour-highlight');
+  elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  const tooltip = document.getElementById('tour-tooltip');
+  tooltip.querySelector('.tour-progresso').textContent = `${passoAtualTour + 1} de ${passosTour.length}`;
+  tooltip.querySelector('.tour-titulo').textContent = passo.titulo;
+  tooltip.querySelector('.tour-texto').textContent = passo.texto;
+  document.getElementById('btn-tour-proximo').textContent = passoAtualTour === passosTour.length - 1 ? 'Concluir' : 'Próximo';
+  tooltip.classList.remove('hidden');
+
+  // Espera o navegador terminar o scroll suave antes de posicionar o
+  // tooltip, senão ele calcularia a posição errada (baseada no scroll antigo)
+  setTimeout(() => posicionarTooltipTour(elemento, tooltip), 300);
+}
+
+function iniciarTour() {
+  passoAtualTour = 0;
+  mostrarPassoTour();
+}
+
+function encerrarTour() {
+  removerDestaqueAnterior();
+  document.getElementById('tour-tooltip').classList.add('hidden');
+  localStorage.setItem('onboarding-completo', 'true');
+}
+
+document.getElementById('btn-tour-proximo').addEventListener('click', () => {
+  passoAtualTour++;
+  mostrarPassoTour();
+});
+document.getElementById('btn-tour-pular').addEventListener('click', encerrarTour);
+document.getElementById('btn-refazer-tour').addEventListener('click', iniciarTour);
+
+// Inicia automaticamente só na primeira vez que a pessoa usa o app —
+// o pequeno atraso garante que a página (incluindo os temas carregados) já
+// renderizou antes do tour começar a apontar para os elementos
+if (!localStorage.getItem('onboarding-completo')) {
+  setTimeout(iniciarTour, 800);
+}
