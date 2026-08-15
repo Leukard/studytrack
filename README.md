@@ -24,9 +24,16 @@ Projeto construído para portfólio, com autenticação real, banco de dados pro
 - **Segurança em nível de banco**: Row Level Security (RLS) no PostgreSQL garante que cada usuário só acessa seus próprios dados, mesmo que haja falha na camada de aplicação
 - **CRUD completo de temas de estudo**: criar, editar, deletar, com meta de horas semanais
 - **CRUD completo de sessões**: registrar, editar, deletar, com anotações
-- **Dashboard com métricas reais**: horas estudadas na semana, sequência de dias consecutivos, percentual da meta atingida — tudo calculado a partir dos dados reais, não estático
-- **Sala de Estudos**: cronômetro Pomodoro com durações configuráveis, alerta sonoro e notificação do navegador ao trocar de fase, anotações registradas ao longo da sessão com timestamp
-- **Música e sons para foco**: rádio ao vivo (SomaFM), player de YouTube com busca por link, e sons ambiente (ruído branco/chuva) gerados via Web Audio API
+- **Sistema de tarefas por tema**: lista de afazeres persistente, gerenciável direto na sala de estudos
+- **Dashboard com métricas reais**: horas estudadas na semana, sequência de dias consecutivos, percentual da meta atingida
+- **Relatórios semanais/mensais**: navegação por período, gráfico de progresso por tema e detalhamento cronológico de cada sessão
+- **Sala de Estudos**: cronômetro Pomodoro com anel de progresso circular, durações configuráveis, alerta sonoro e notificação do navegador ao trocar de fase, anotações registradas ao longo da sessão com timestamp
+- **Música e sons para foco**: rádio ao vivo (SomaFM), player de YouTube com busca por link, e sons ambiente (branco, rosa, chuva, ondas) gerados via Web Audio API
+- **Janela flutuante (Picture-in-Picture)**: cronômetro espelhado numa mini-janela que fica por cima de qualquer outro app
+- **Personalização visual**: cor de destaque customizável (com seletor nativo e conta-gotas) e fundo da sala de estudos (gradientes ou foto própria via upload)
+- **PWA instalável**: funciona como app nativo, com ícone próprio e funcionamento básico offline
+- **Tour de onboarding interativo** guiando novos usuários pelas funcionalidades principais
+- **Nome de usuário customizável**
 - **Tema claro/escuro** com preferência salva
 - **Totalmente responsivo**, testado em mobile e desktop
 
@@ -72,19 +79,11 @@ Preencha `supabaseClient.js` com a mesma URL e chave do passo anterior.
 
 Abra `frontend/index.html` com uma extensão tipo Live Server (VS Code).
 
-## Melhorias futuras
 
-- Sincronização com Google Calendar
-- Sistema de tarefas integrado ao cronômetro
-- Imagens de fundo customizáveis na sala de estudos
-- Seção educacional explicando a técnica Pomodoro
-- Fluxo de onboarding para novos usuários
-- Personalização visual completa (cores, tema)
-- Geração de relatórios de progresso
 
 ## Projeto no ar
 
-🔗 _em breve_
+🔗 https://studytrack-sepia.vercel.app/
 
 ---
 

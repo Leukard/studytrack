@@ -24,9 +24,16 @@ Built as a portfolio project, featuring real authentication, a database protecte
 - **Database-level security**: PostgreSQL Row Level Security (RLS) ensures each user can only access their own data, even if the application layer fails
 - **Full CRUD for study topics**: create, edit, delete, with weekly hour goals
 - **Full CRUD for study sessions**: log, edit, delete, with notes
-- **Dashboard with real metrics**: hours studied this week, consecutive-day streak, goal completion percentage — all calculated from real data, not static
-- **Study Room**: Pomodoro timer with configurable durations, sound alert and browser notification on phase change, timestamped notes logged throughout the session
-- **Focus music and sounds**: live radio (SomaFM), YouTube player with link search, and ambient sounds (white noise/rain) generated via the Web Audio API
+- **Per-topic task list**: persistent to-do items, manageable right from the study room
+- **Dashboard with real metrics**: hours studied this week, consecutive-day streak, goal completion percentage
+- **Weekly/monthly reports**: period navigation, per-topic progress bars, and a chronological breakdown of every session
+- **Study Room**: Pomodoro timer with a circular progress ring, configurable durations, sound alert and browser notification on phase change, timestamped notes logged throughout the session
+- **Focus music and sounds**: live radio (SomaFM), YouTube player with link search, and ambient sounds (white, pink, rain, waves) generated via the Web Audio API
+- **Floating window (Picture-in-Picture)**: a mirrored mini timer window that stays on top of any other app
+- **Visual personalization**: customizable accent color (with native picker and eyedropper) and study room background (gradients or your own uploaded photo)
+- **Installable PWA**: works like a native app, with its own icon and basic offline functionality
+- **Interactive onboarding tour** guiding new users through the main features
+- **Customizable display name**
 - **Light/dark theme** with saved preference
 - **Fully responsive**, tested on mobile and desktop
 
@@ -72,19 +79,10 @@ Fill in `supabaseClient.js` with the same URL and key from the previous step.
 
 Open `frontend/index.html` with a Live Server extension (VS Code) or similar.
 
-## Future improvements
-
-- Google Calendar sync
-- Task system integrated with the timer
-- Customizable study room background images
-- Educational section explaining the Pomodoro technique
-- Onboarding flow for new users
-- Full visual personalization (colors, theme)
-- Progress report generation
 
 ## Live project
 
-🔗 _coming soon_
+🔗 https://studytrack-sepia.vercel.app/
 
 ---
 
