@@ -36,6 +36,11 @@ let intervaloId = null;
 let rodando = false;
 let minutosFocadosAcumulados = 0;
 let horarioFimFase = null; // timestamp (ms) de quando a fase atual deve terminar 
+let janelaPip = null;
+let displayTempoPip = null;
+let labelFasePip = null;
+let btnIniciarPausarPip = null;
+let anelProgressoPip = null;
 
 // Carrega os temas
 async function carregarTemasNoSelect() {
@@ -871,12 +876,6 @@ aplicarFundo(`${data.publicUrl}?t=${Date.now()}`);
 });
 
 
-let janelaPip = null;
-let displayTempoPip = null;
-let labelFasePip = null;
-let btnIniciarPausarPip = null;
-let anelProgressoPip = null;
-
 async function abrirModoPip() {
   if (!('documentPictureInPicture' in window)) {
     alert('Janela flutuante não é suportada nesse navegador. Funciona no Chrome ou Edge (versões recentes).');
@@ -965,6 +964,14 @@ function sincronizarPip() {
 }
 
 document.getElementById('btn-pip').addEventListener('click', abrirModoPip);
+
+document.getElementById('btn-sobre-pomodoro').addEventListener('click', () => {
+  document.getElementById('modal-sobre-pomodoro').classList.remove('hidden');
+});
+
+document.getElementById('btn-fechar-sobre-pomodoro').addEventListener('click', () => {
+  document.getElementById('modal-sobre-pomodoro').classList.add('hidden');
+});
 
 
 // Tenta iniciar o youtube caso a página já inicie com a aba do Youtube visível

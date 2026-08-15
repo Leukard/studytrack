@@ -39,8 +39,11 @@
     <a href="dashboard.html" class="text-sm text-slate-500 dark:text-slate-400 hover:text-brand-500 transition-colors">← Voltar</a>
     <h1 class="text-lg font-bold text-brand-600 dark:text-brand-500">Sala de Estudos</h1>
     <div class="flex items-center gap-2">
+      <button id="btn-sobre-pomodoro" class="p-2 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors" title="Sobre a técnica Pomodoro">
+      <i data-lucide="help-circle" class="w-4 h-4"></i>
+      </button>
       <button id="btn-pip" class="p-2 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors" title="Janela flutuante">
-  <i data-lucide="picture-in-picture-2" class="w-4 h-4"></i>
+      <i data-lucide="picture-in-picture-2" class="w-4 h-4"></i>
       </button>
       <button id="btn-audio" class="p-2 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
         <i data-lucide="music" class="w-5 h-5"></i>
@@ -295,6 +298,49 @@
     <span class="text-sm text-brand-600 dark:text-brand-500 cursor-pointer hover:underline">📷 Enviar minha própria foto</span>
     <input type="file" id="input-upload-fundo" accept="image/*" class="hidden" />
   </label>
+  </div>
+ </div>
+</div>
+
+<div id="modal-sobre-pomodoro" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4 z-50">
+  <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[85vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold">Técnica Pomodoro</h3>
+      <button id="btn-fechar-sobre-pomodoro" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">
+      Criada por Francesco Cirillo no fim dos anos 1980, é um método de gestão do tempo baseado em ciclos curtos de foco intenso, separados por pausas — pensado pra manter a concentração fresca e reduzir a procrastinação.
+    </p>
+
+    <div class="space-y-3 mb-5">
+      <div class="flex gap-3">
+        <span class="w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center shrink-0">1</span>
+        <p class="text-sm"><strong>Escolha uma tarefa</strong> — algo específico em que vai focar, sem abas nem desvios.</p>
+      </div>
+      <div class="flex gap-3">
+        <span class="w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center shrink-0">2</span>
+        <p class="text-sm"><strong>Foque por um ciclo</strong> (25 minutos é o padrão) — sem interrupções até o alarme tocar.</p>
+      </div>
+      <div class="flex gap-3">
+        <span class="w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center shrink-0">3</span>
+        <p class="text-sm"><strong>Faça uma pausa curta</strong> (5 minutos) — levanta, alonga, hidrata. Nunca pule essa parte.</p>
+      </div>
+      <div class="flex gap-3">
+        <span class="w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center shrink-0">4</span>
+        <p class="text-sm"><strong>Repita</strong> — a cada 4 ciclos, faça uma pausa mais longa (15-30 minutos).</p>
+      </div>
+    </div>
+
+    <div class="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4">
+      <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-1">Por que funciona</p>
+      <p class="text-sm text-slate-600 dark:text-slate-300">
+        Nossa capacidade de atenção plena dura, em média, cerca de 20 minutos. Ciclos curtos e definidos ajudam a "reiniciar" o foco antes que ele se disperse — e saber que a pausa está próxima reduz a resistência em começar.
+      </p>
+    </div>
+  </div>
 </div>
 
   </main>
